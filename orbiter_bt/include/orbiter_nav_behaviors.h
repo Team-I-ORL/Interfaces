@@ -4,7 +4,7 @@
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 // sudo apt-get install ros-humble-tf2-geometry-msgs
 #include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <string>
 
 class GoToPose : public BT::StatefulActionNode // using async action
@@ -25,7 +25,7 @@ public:
     BT::NodeStatus onStart() override;
     BT::NodeStatus onRunning() override;
     void onHalted() override{};
-    std::vector<double> getGoal();
+    // std::vector<double> getGoal();
 
     bool nav_done_flag;
 

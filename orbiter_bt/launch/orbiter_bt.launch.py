@@ -7,11 +7,15 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
+  inventory_file = os.path.join(get_package_share_directory('navs'), "dummy_database", "inv_locs.yaml")
+  print("inventory_file: ", inventory_file)
   autonomy_node_cmd = Node(
       package="orbiter_bt",
-      executable="orbiter_bt_node",
-      name="autonomy_node",
+      executable="orbiter_bt",
+      name="orbiter_bt",
+      parameters=[{
+        "inventory_file": inventory_file
+        }],
   )
 
   ld = LaunchDescription()

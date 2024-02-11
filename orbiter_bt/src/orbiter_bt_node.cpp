@@ -5,6 +5,7 @@ const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orb
 OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 {
     RCLCPP_INFO(get_logger(), "OrbiterBTNode has been created.");
+    this->declare_parameter("inventory_file","none");
 }
 
 void OrbiterBTNode::setup()
@@ -24,7 +25,7 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GoToPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<GoToPose>("GoToPose", builder);
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_bt.xml"); // missing bt_xml_dir
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_bt.xml");
 }
 
 void OrbiterBTNode::updateBT()
@@ -37,7 +38,7 @@ void OrbiterBTNode::updateBT()
     }
     else if (tree_status == BT::NodeStatus::RUNNING)
     {
-        RCLCPP_INFO(get_logger(), "Behavior tree is running");
+        // RCLCPP_INFO(get_logger(), "Behavior tree is running");
     }
     else if (tree_status == BT::NodeStatus::FAILURE)
     {
