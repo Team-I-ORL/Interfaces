@@ -1,11 +1,80 @@
-<!-- Behavior tree that sequentially navigates locations naively -->
-<root main_tree_to_execute = "MainTree" >
-  <BehaviorTree ID="MainTree">
-    <Sequence name="sequence">
-      <GoToPose name="go_to_location1" loc="location1" />
-      <GoToPose name="go_to_location2" loc="location2" />
-      <GoToPose name="go_to_location3" loc="location3" />
-      <GoToPose name="go_to_location4" loc="location4" />
-    </Sequence>
-  </BehaviorTree>
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <ReactiveSequence>
+            <Fallback>
+                <Condition ID="isBatteryOK"/>
+                <Sequence>
+                    <Action ID="GoToPose" loc="[0,0,0]"/>
+                    <Action ID="DockAndCharge"/>
+                </Sequence>
+            </Fallback>
+            <Fallback>
+                <Condition ID="isGoalAvailable" goalName=""/>
+                <Action ID="waitForCommand" goalName="" goalType="voiceOver"/>
+            </Fallback>
+            <Action ID="getItemInfo" itemInfo="" itemName="" loc=""/>
+            <IfThenElse name="goalType">
+                <Condition ID="isVoiceOver" name="GoalIsVoiceOver"/>
+                <Action ID="voiceOverInfo" itemInfo=""/>
+                <ReactiveSequence name="grabbingSeq">
+                    <Condition ID="noOveride"/>
+                    <Fallback name="goPose">
+                        <Condition ID="isAtPose" loc=""/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="GoToPose" loc="[0,0,0]"/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Fallback name="grab">
+                        <Condition ID="isGrabbed"/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="graspObject" itemInfo=""/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Fallback name="goDrop">
+                        <Condition ID="isAtPose" loc="[0,0,0]"/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="GoToPose" loc="[0,0,0]"/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Action ID="dropItem"/>
+                </ReactiveSequence>
+            </IfThenElse>
+        </ReactiveSequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="DockAndCharge"/>
+        <Action ID="GoToPose">
+            <input_port default="[0,0,0]" name="loc"/>
+        </Action>
+        <Action ID="dropItem"/>
+        <Action ID="getItemInfo">
+            <output_port name="itemInfo"/>
+            <input_port name="itemName"/>
+            <output_port name="loc"/>
+        </Action>
+        <Action ID="graspObject">
+            <input_port name="itemInfo"/>
+        </Action>
+        <Condition ID="isAtPose">
+            <input_port name="loc"/>
+        </Condition>
+        <Condition ID="isBatteryOK"/>
+        <Condition ID="isGoalAvailable">
+            <output_port name="goalName"/>
+        </Condition>
+        <Condition ID="isGrabbed"/>
+        <Condition ID="isVoiceOver"/>
+        <Condition ID="noOveride"/>
+        <Action ID="voiceOverInfo">
+            <input_port name="itemInfo"/>
+        </Action>
+        <Action ID="waitForCommand">
+            <output_port name="goalName"/>
+            <output_port default="Inquire" name="goalType"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
 </root>
