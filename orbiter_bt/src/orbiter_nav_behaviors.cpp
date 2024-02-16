@@ -30,6 +30,7 @@ BT::NodeStatus GoToPose::onStart()
 {   
     // Get location names from input port
     BT::Optional<std::string> loc = getInput<std::string>("loc");
+    // BT::Expected<std::string> loc = getInput<std::string>("loc");
     if (!loc)
     {
         throw BT::RuntimeError("missing required input [loc]");

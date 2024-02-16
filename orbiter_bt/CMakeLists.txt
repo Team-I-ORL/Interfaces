@@ -16,6 +16,11 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 find_package(ament_index_cpp REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/Ims.srv"
+)
 
 # Install directories
 install(DIRECTORY
@@ -38,12 +43,19 @@ set(TARGET_DEPENDS
 )
 
 include_directories(include)
-add_executable(orbiter_bt src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
-ament_target_dependencies(orbiter_bt ${TARGET_DEPENDS})
-target_link_libraries(orbiter_bt ${YAML_CPP_LIBRARIES})
+
+add_executable(orbiter_bt_node src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
+ament_target_dependencies(orbiter_bt_node ${TARGET_DEPENDS})
+target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
+
+add_executable(dummy_ims_server src/dummy_ims_server.cpp)
+rosidl_target_interfaces(dummy_ims_server ${PROJECT_NAME} "rosidl_typesupport_cpp")
+ament_target_dependencies(dummy_ims_server rclcpp)
+
 
 install(TARGETS
-orbiter_bt
+orbiter_bt_node
+dummy_ims_server
 DESTINATION lib/${PROJECT_NAME})
 
 

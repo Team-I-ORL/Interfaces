@@ -33,6 +33,7 @@ void OrbiterBTNode::updateBT()
 {
     // tick the behavior tree when asked
     BT::NodeStatus tree_status = tree_.tickRoot();
+    // BT::NodeStatus tree_status = tree_.tickOnce(); // V4
     if (tree_status == BT::NodeStatus::SUCCESS)
     {
         RCLCPP_INFO(get_logger(), "Behavior tree executed successfully");
