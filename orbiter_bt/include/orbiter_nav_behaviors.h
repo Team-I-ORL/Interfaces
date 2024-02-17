@@ -7,6 +7,9 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <string>
+#include <vector>
+#include <sstream>
+#include <algorithm>
 
 class GoToPose : public BT::StatefulActionNode // using async action
 {
@@ -32,4 +35,21 @@ public:
 
     // getting results
     void navigate_to_pose_callback(const GoalHandleNav::WrappedResult &result);
+
+    std::vector<double> stringToVector(const std::string& s) {
+        std::string numbers = s;
+        numbers.erase(std::remove(numbers.begin(), numbers.end(), '['), numbers.end());
+        numbers.erase(std::remove(numbers.begin(), numbers.end(), ']'), numbers.end());
+
+        std::vector<double> result;
+        std::stringstream ss(numbers);
+
+        for (double i; ss >> i;) {
+            result.push_back(i);
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+
+        return result;
+    }
 };

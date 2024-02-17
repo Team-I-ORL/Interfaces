@@ -1,5 +1,4 @@
 string itemname
 ---
-bool success
 string iteminfo
 string loc

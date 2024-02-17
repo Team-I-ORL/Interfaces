@@ -36,10 +36,11 @@ BT::NodeStatus GoToPose::onStart()
         throw BT::RuntimeError("missing required input [loc]");
     }
     RCLCPP_INFO(node_->get_logger(), "Going to %s", loc.value().c_str());    
-    // Get goal from IMS based on location name
-    const std::string inv_loc_file = node_->get_parameter("inventory_file").as_string(); // inventory file parsed as a ROS2 parameter
-    YAML::Node inventory = YAML::LoadFile(inv_loc_file);
-    std::vector<double> goal = inventory[loc.value()].as<std::vector<double>>(); // reading from yaml
+    // // Get goal from IMS based on location name
+    // const std::string inv_loc_file = node_->get_parameter("inventory_file").as_string(); // inventory file parsed as a ROS2 parameter
+    // YAML::Node inventory = YAML::LoadFile(inv_loc_file);
+    // std::vector<double> goal = inventory[loc.value()].as<std::vector<double>>(); // reading from yaml
+    std::vector<double> goal = stringToVector(loc.value());
     RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %f", goal[0], goal[1], goal[2]);
     
 

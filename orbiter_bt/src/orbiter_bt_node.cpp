@@ -25,8 +25,14 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GoToPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<GoToPose>("GoToPose", builder);
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<GetItemInfo>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_bt.xml");
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_patrol.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_patrol.xml");
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/getInfo_then_go.xml");
 }
 
 void OrbiterBTNode::updateBT()

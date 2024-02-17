@@ -3,22 +3,23 @@
 GetItemInfo::GetItemInfo(const std::string &name,
                          const BT::NodeConfiguration &config,
                          rclcpp::Node::SharedPtr node)
-    : BT::SyncActionNode(name, config), node_(node)
+    : BT::StatefulActionNode(name, config), node_(node)
 {
     RCLCPP_INFO(node_->get_logger(), "GetItemInfo has been created.");
-    rclcpp::Client<orbiter_interfaces::srv::ims>::SharedPtr client 
-        = node_->create_client<orbiter_interfaces::srv::GetItemInfo>("get_item_info");
+    client  = node_->create_client<orbiter_bt::srv::Ims>("ims_service");
+    this->finished = false;
 }
 
 BT::PortsList GetItemInfo::providedPorts()
 {
     return {
         BT::InputPort<std::string>("itemName"),
-        BT::OutputPort<std::string>("itemInfo")};
-        BT::OutputPort<std::string>("loc");
+        BT::OutputPort<std::string>("itemInfo"),
+        BT::OutputPort<std::string>("loc")};
+       
 }
 
-BT::NodeStatus GetItemInfo::tick()
+BT::NodeStatus GetItemInfo::onStart()
 {
     // Get item name from input port
     BT::Optional<std::string> itemName = getInput<std::string>("itemName");
@@ -27,30 +28,35 @@ BT::NodeStatus GetItemInfo::tick()
         throw BT::RuntimeError("missing required input [itemName]");
     }
     RCLCPP_INFO(node_->get_logger(), "Getting info for %s", itemName.value().c_str());
-    auto request = std::make_shared<orbiter_interfaces::srv::GetItemInfo::Request>();
-    request -> itemName = "example";
-    while (!client->wait_for_service(std::chrono::seconds(1)))
+    auto request = std::make_shared<orbiter_bt::srv::Ims::Request>();
+    request->itemname = itemName.value();
+    auto result = client->async_send_request(request, std::bind(&GetItemInfo::result_callback, this, std::placeholders::_1));
+    RCLCPP_INFO(node_->get_logger(), "Request sent, waiting for response.");
+    return BT::NodeStatus::RUNNING;
+}
+
+BT::NodeStatus GetItemInfo::onRunning()
+{
+    if (this->finished)
     {
-        if (!rclcpp::ok())
-        {
-            RCLCPP_ERROR(node_->get_logger(), "Interrupted while waiting for the service. Exiting.");
-            return BT::NodeStatus::FAILURE;
-        }
-        RCLCPP_INFO(node_->get_logger(), "service not available, waiting again...");
-    }
-    auto result = client->async_send_request(request);
-    if (rclcpp::spin_until_future_complete(node_, result) == rclcpp::executor::FutureReturnCode::SUCCESS)
-    {
-        RCLCPP_INFO(node_->get_logger(), "Item Info: %s", result.get()->iteminfo);
-        RCLCPP_INFO(node_->get_logger(), "Location: %s", result.get()->loc);
-        setOutput("itemInfo", result.get()->iteminfo);
-        setOutput("loc", result.get()->loc);
         return BT::NodeStatus::SUCCESS;
+        RCLCPP_INFO(node_->get_logger(), "Response received, success");
     }
     else
     {
-        RCLCPP_ERROR(node_->get_logger(), "Failed to call service");
-        return BT::NodeStatus::FAILURE;
+        return BT::NodeStatus::RUNNING;
+        RCLCPP_INFO(node_->get_logger(), "Waiting for response, running");
     }
     
+}
+
+void GetItemInfo::result_callback(rclcpp::Client<orbiter_bt::srv::Ims>::SharedFuture result)
+{
+    RCLCPP_INFO(node_->get_logger(), "Response received, success");
+    auto response = result.get();
+    RCLCPP_INFO(node_->get_logger(), "Item Info: %s", response->iteminfo.c_str());
+    RCLCPP_INFO(node_->get_logger(), "Location: %s", response->loc.c_str());
+    setOutput("itemInfo", response->iteminfo);
+    setOutput("loc", response->loc);
+    this->finished = true;
 }

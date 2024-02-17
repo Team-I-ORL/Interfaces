@@ -1,0 +1,10 @@
+# orbiter_bt.xml
+The root of this tree is a `ReactiveSequence`, which means it will execute its children in order until one fails or all succeed, but with the added behavior of re-evaluating conditions from the beginning each time it is executed.
+
+Initially, the tree checks if the robot's battery is okay (`isBatteryOK`). If not, it tries to execute a sequence to go to a predefined pose (`GoToPose` with location [0,0,0]) and then dock and charge (`DockAndCharge`). This is encapsulated in a Fallback node, meaning if the condition fails (battery is not okay), it will attempt the sequence of actions as an alternative.
+
+Next, there's another `Fallback` node checking if a goal is available (`isGoalAvailable`). If there is no goal available, the robot will wait for a command (`waitForCommand`), specifically expecting a voice command (goalType="voiceOver").
+
+The tree then proceeds to an action to get item information (`getItemInfo`), though specifics like itemInfo, itemName, and loc are placeholders to be filled with actual data during execution.
+
+Following this, an IfThenElse node decides what to do based on the goal type. If the goal is a voice-over (`isVoiceOver`), it performs a voice-over action with the given item information (`voiceOverInfo`). Otherwise, it enters a complex `ReactiveSequence` for grabbing an item, which involves several steps: moving to a pose (GoToPose), grasping the object (`graspObject`), moving to a drop-off location, and finally dropping the item (`dropItem`). Each of these actions has conditions to check (e.g., `isAtPose`, `isGrabbed`) and uses `Fallback` strategies to attempt different approaches if conditions fail. The RetryUntilSuccessful node within these fallbacks attempts the action (e.g., going to a pose, grasping an object) up to five times, aiming to ensure the action eventually succeeds.

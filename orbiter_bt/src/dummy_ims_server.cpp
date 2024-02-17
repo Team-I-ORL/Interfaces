@@ -17,7 +17,7 @@ void outputItemInfo::itemInfoCallback(const std::shared_ptr<orbiter_bt::srv::Ims
 
 
     response->iteminfo = "Item Info";
-    response->loc = "Location";
+    response->loc = "[-1.0, -0.5, -2.356]";
 }
 
 int main(int argc, char **argv)

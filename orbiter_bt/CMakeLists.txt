@@ -29,7 +29,8 @@ DESTINATION share/${PROJECT_NAME}
 )
 
 set(BEHAVIOR_SOURCES
-src/orbiter_nav_behaviors.cpp 
+src/orbiter_nav_behaviors.cpp
+src/orbiter_getItemInfo.cpp
 )
 
 set(TARGET_DEPENDS
@@ -46,6 +47,7 @@ include_directories(include)
 
 add_executable(orbiter_bt_node src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
 ament_target_dependencies(orbiter_bt_node ${TARGET_DEPENDS})
+rosidl_target_interfaces(orbiter_bt_node ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
 
 add_executable(dummy_ims_server src/dummy_ims_server.cpp)
