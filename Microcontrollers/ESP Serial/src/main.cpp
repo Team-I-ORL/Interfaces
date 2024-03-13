@@ -2,12 +2,12 @@
 #include "ESP8266MQTT.h"
 
 // Serial communication test
-const bool onWifi = false;
+const bool onWifi = true;
 
 // MQTT configuration parameters
-const char* ssid = "f31";
-const char* password = "isthisok";
-const char* mqtt_server = "10.0.0.88"; // e.g., "10.0.0.88"
+const char* ssid = "AIMSnet";
+const char* password = "aimaker ";
+const char* mqtt_server = "192.168.1.34"; // e.g., "10.0.0.88"
 const uint16_t mqtt_server_port = 1883; 
 const char* mqttUser = "mqtt_user";
 const char* mqttPassword = "mqtt_password";

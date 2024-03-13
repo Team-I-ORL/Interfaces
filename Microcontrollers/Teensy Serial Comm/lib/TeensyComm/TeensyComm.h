@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+extern volatile bool motorActive;
+
 class TeensyComm {
   public:
     TeensyComm();
@@ -11,6 +13,10 @@ class TeensyComm {
     void setLedPin(int pin);
     bool isMotorActivated(); // Method to check if motor should be activated
     void resetMotorActivation();
+    bool isNewCommandAvailable();
+    void clearCommand();
+    bool newCommandAvailable;
+
 
   private:
     String inputBuffer;

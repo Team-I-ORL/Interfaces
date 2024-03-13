@@ -1,8 +1,8 @@
 #include "TeensyComm.h"
 
+
 TeensyComm::TeensyComm() {
   messageStart = false;
-  activateMotor = false;
 }
 
 void TeensyComm::begin(long baudRate) {
@@ -30,6 +30,11 @@ void TeensyComm::checkForCommands() {
       inputBuffer += receivedChar;
     }
   }
+  if (motorActive) {
+    digitalWrite(ledPin, HIGH); // Turn LED on
+  } else {
+    digitalWrite(ledPin, LOW); // Turn LED off
+  }
 }
 
 void TeensyComm::setLedPin(int pin) {
@@ -38,20 +43,21 @@ void TeensyComm::setLedPin(int pin) {
 }
 
 void TeensyComm::processMessage(String message) {
+
+  Serial.println("Received message: " + message);
+
   int separatorIndex = message.lastIndexOf(',');
+
   String command = message.substring(0, separatorIndex);
+
   char receivedChecksum = message.charAt(separatorIndex + 1);
+  
   if (calculateChecksum(command) == receivedChecksum) {
     if (command == "1") {
-      digitalWrite(ledPin, HIGH); // Turn LED on
-      activateMotor = true;
-    } else if (command == "0") {
-      digitalWrite(ledPin, LOW); // Turn LED off
-      activateMotor = false;
+      motorActive = true;
     }
-  } else {
-    // Handle checksum error
-  }
+
+  } 
 }
 
 char TeensyComm::calculateChecksum(const String &data) {
@@ -63,9 +69,18 @@ char TeensyComm::calculateChecksum(const String &data) {
 }
 
 bool TeensyComm::isMotorActivated() {
-  return activateMotor;
+  return motorActive;
 }
 
 void TeensyComm::resetMotorActivation() {
-  activateMotor = false;
+  motorActive = false;
+}
+
+bool TeensyComm::isNewCommandAvailable() {
+    // Implementation depends on how you track new commands
+    return newCommandAvailable;
+}
+
+void TeensyComm::clearCommand() {
+    newCommandAvailable = false;
 }
