@@ -1,0 +1,35 @@
+<root main_tree_to_execute="BehaviorTree">
+
+    <TreeNodesModel>
+        <Action ID="DockAndCharge"/>
+        <Action ID="GoToPose">
+            <input_port default="[0,0,0]" name="loc"/>
+        </Action>
+        <Action ID="dropItem"/>
+        <Action ID="getItemInfo">
+            <output_port name="itemInfo"/>
+            <input_port name="itemName"/>
+            <output_port name="loc"/>
+        </Action>
+        <Action ID="graspObject">
+            <input_port name="itemInfo"/>
+        </Action>
+        <Condition ID="isAtPose">
+            <input_port name="loc"/>
+        </Condition>
+        <Condition ID="isBatteryOK"/>
+        <Condition ID="isGoalAvailable">
+            <output_port name="goalName"/>
+        </Condition>
+        <Condition ID="isGrabbed"/>
+        <Condition ID="isVoiceOver"/>
+        <Condition ID="noOveride"/>
+        <Action ID="voiceOverInfo">
+            <input_port name="itemInfo"/>
+        </Action>
+        <Action ID="waitForCommand">
+            <output_port name="goalName"/>
+            <output_port default="Inquire" name="goalType"/>
+        </Action>
+    </TreeNodesModel>
+</root>

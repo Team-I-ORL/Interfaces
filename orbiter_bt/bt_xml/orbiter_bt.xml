@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <ReactiveSequence>
+            <Fallback>
+                <Condition ID="isBatteryOK"/>
+                <Sequence>
+                    <Action ID="GoToPose" loc="[0,0,0]"/>
+                    <Action ID="DockAndCharge"/>
+                </Sequence>
+            </Fallback>
+            <Fallback>
+                <Condition ID="isGoalAvailable" goalName=""/>
+                <Action ID="waitForCommand" goalName="" goalType="voiceOver"/>
+            </Fallback>
+            <Action ID="getItemInfo" itemInfo="" itemName="" loc=""/>
+            <IfThenElse name="goalType">
+                <Condition ID="isVoiceOver" name="GoalIsVoiceOver"/>
+                <Action ID="voiceOverInfo" itemInfo=""/>
+                <ReactiveSequence name="grabbingSeq">
+                    <Condition ID="noOveride"/>
+                    <Fallback name="goPose">
+                        <Condition ID="isAtPose" loc=""/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="GoToPose" loc="[0,0,0]"/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Fallback name="grab">
+                        <Condition ID="isGrabbed"/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="graspObject" itemInfo=""/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Fallback name="goDrop">
+                        <Condition ID="isAtPose" loc="[0,0,0]"/>
+                        <RetryUntilSuccessful num_attempts="5">
+                            <Action ID="GoToPose" loc="[0,0,0]"/>
+                        </RetryUntilSuccessful>
+                    </Fallback>
+                    <Action ID="dropItem"/>
+                </ReactiveSequence>
+            </IfThenElse>
+        </ReactiveSequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <!-- ////////// -->
+</root>
