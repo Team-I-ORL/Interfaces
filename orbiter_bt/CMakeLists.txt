@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(moveit_msgs REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(tf2 REQUIRED)
@@ -31,6 +32,7 @@ DESTINATION share/${PROJECT_NAME}
 set(BEHAVIOR_SOURCES
 src/orbiter_nav_behaviors.cpp
 src/orbiter_getItemInfo.cpp
+src/orbiter_moveit_bahaviors.cpp
 )
 
 set(TARGET_DEPENDS
@@ -38,6 +40,7 @@ set(TARGET_DEPENDS
     yaml-cpp
     behaviortree_cpp_v3
     rclcpp_action
+    moveit_msgs
     nav2_msgs
     tf2
     tf2_geometry_msgs
@@ -49,6 +52,7 @@ add_executable(orbiter_bt_node src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
 ament_target_dependencies(orbiter_bt_node ${TARGET_DEPENDS})
 rosidl_target_interfaces(orbiter_bt_node ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
+target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
 
 add_executable(dummy_ims_server src/dummy_ims_server.cpp)
 rosidl_target_interfaces(dummy_ims_server ${PROJECT_NAME} "rosidl_typesupport_cpp")
