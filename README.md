@@ -28,7 +28,7 @@ To use the ros1_bridge to network ROS1 and ROS2, the follow the steps below.
 ```
    source /opt/ros/humble/setup.bash
    source ros-humble-ros1-bridge/install/local_setup.bash
-   ros2 run ros1_bridge dynamic_bridge
+   ros2 run ros1_bridge dynamic_bridge --bridge-all-topics
 ```
 
 Now, ROS2 within the container environment should be connected to ROS1.
