@@ -28,12 +28,17 @@ BT::NodeStatus MoveArm::onStart()
     // }
     // RCLCPP_INFO(node_->get_logger(), "Moving to %s", goal.value().c_str());    
     // Send goal to action server
+    RCLCPP_INFO(node_->get_logger(), "MoveArm onStart");
     auto send_goal_options = rclcpp_action::Client<moveitInterface>::SendGoalOptions();
     send_goal_options.result_callback = std::bind(&MoveArm::move_group_callback, this, std::placeholders::_1);
     
     geometry_msgs::msg::PoseStamped target_pose1; 
     auto goal_msg = moveitInterface::Goal();
     goal_msg.request.group_name = "arm";
+    goal_msg.request.goal_constraints = std::vector<moveit_msgs::msg::Constraints>(1);
+    goal_msg.request.goal_constraints[0].position_constraints = std::vector<moveit_msgs::msg::PositionConstraint>(1);
+    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses = std::vector<geometry_msgs::msg::Pose>(1);
+    
     goal_msg.request.goal_constraints[0].position_constraints[0].header.frame_id = "base_link";
     goal_msg.request.goal_constraints[0].position_constraints[0].link_name = "end_effector";
     goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].position.x = 0.5;
@@ -44,6 +49,7 @@ BT::NodeStatus MoveArm::onStart()
     goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.z = 0.0;
     goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.w = 1.0;
     goal_msg.request.goal_constraints[0].position_constraints[0].weight = 1.0;
+    RCLCPP_INFO(node_->get_logger(), "Goal created");
 
     // send goal
     action_client_->async_send_goal(goal_msg, send_goal_options);

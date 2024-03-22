@@ -11,8 +11,8 @@ def generate_launch_description():
   print("inventory_file: ", inventory_file)
   autonomy_node_cmd = Node(
       package="orbiter_bt",
-      executable="orbiter_bt",
-      name="orbiter_bt",
+      executable="orbiter_bt_node",
+      name="orbiter_bt_node",
       parameters=[{
         "inventory_file": inventory_file
         }],
