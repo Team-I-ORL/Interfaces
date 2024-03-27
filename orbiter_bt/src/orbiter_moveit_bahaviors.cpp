@@ -1,13 +1,22 @@
 #include "orbiter_moveit_behaviors.h"
 
-MoveArm::MoveArm(   const std::string &name,
-                    const BT::NodeConfiguration &config,
-                    rclcpp::Node::SharedPtr node)
-    : BT::StatefulActionNode(name, config), node_(node)
+
+MoveArm::MoveArm(const std::string &name,
+                 const BT::NodeConfiguration &config,
+                 const rclcpp::Node::SharedPtr node)
+    : BT::StatefulActionNode(name, config),
+    node_(node),
+    move_group_interface(node, PLANNING_GROUP),
+    tfBuffer(node->get_clock()),
+    tf_listener(tfBuffer)
 {
     RCLCPP_INFO(node_->get_logger(), "MoveArm has been created.");
-    action_client_ = rclcpp_action::create_client<moveitInterface>(node_, "move_group");
-    moveitDoneFlag = false;
+    RCLCPP_INFO(node_->get_logger(), "MoveArm onStart");
+    EE_LINK = move_group_interface.getEndEffectorLink();
+    RCLCPP_INFO(node_->get_logger(), "Planning frame: %s", move_group_interface.getPlanningFrame().c_str());
+    RCLCPP_INFO(node_->get_logger(), "End effector link: %s", EE_LINK.c_str());
+
+    // std::cout << "MoveGroup pointer: " << move_group_interface.getNodeHandle() << std::endl;
 }
 
 BT::PortsList MoveArm::providedPorts()
@@ -16,6 +25,21 @@ BT::PortsList MoveArm::providedPorts()
         // BT::InputPort<std::string>("goal"),
         // BT::OutputPort<std::string>("result")
         };
+}
+
+bool MoveArm::goalChecker(){
+    auto curPose = tfBuffer.lookupTransform(BASE_LINK, EE_LINK,tf2::TimePointZero);
+    double dx = target_pose.pose.position.x - curPose.transform.translation.x;
+    double dy = target_pose.pose.position.y - curPose.transform.translation.y;
+    double dz = target_pose.pose.position.z - curPose.transform.translation.z;
+    double dist = sqrt(dx*dx + dy*dy + dz*dz);
+    double toleance = move_group_interface.getGoalPositionTolerance();
+    if (dist < toleance){
+        RCLCPP_INFO(node_->get_logger(), "Goal Reached !!!");
+        return true;
+    }
+
+    return false;
 }
 
 BT::NodeStatus MoveArm::onStart()
@@ -28,65 +52,47 @@ BT::NodeStatus MoveArm::onStart()
     // }
     // RCLCPP_INFO(node_->get_logger(), "Moving to %s", goal.value().c_str());    
     // Send goal to action server
-    RCLCPP_INFO(node_->get_logger(), "MoveArm onStart");
-    auto send_goal_options = rclcpp_action::Client<moveitInterface>::SendGoalOptions();
-    send_goal_options.result_callback = std::bind(&MoveArm::move_group_callback, this, std::placeholders::_1);
-    
-    geometry_msgs::msg::PoseStamped target_pose1; 
-    auto goal_msg = moveitInterface::Goal();
-    goal_msg.request.group_name = "arm";
-    goal_msg.request.goal_constraints = std::vector<moveit_msgs::msg::Constraints>(1);
-    goal_msg.request.goal_constraints[0].position_constraints = std::vector<moveit_msgs::msg::PositionConstraint>(1);
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses = std::vector<geometry_msgs::msg::Pose>(1);
-    
-    goal_msg.request.goal_constraints[0].position_constraints[0].header.frame_id = "base_link";
-    goal_msg.request.goal_constraints[0].position_constraints[0].link_name = "end_effector";
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].position.x = 0.5;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].position.y = 0.5;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].position.z = 0.5;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.x = 0.0;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.y = 0.0;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.z = 0.0;
-    goal_msg.request.goal_constraints[0].position_constraints[0].constraint_region.primitive_poses[0].orientation.w = 1.0;
-    goal_msg.request.goal_constraints[0].position_constraints[0].weight = 1.0;
-    RCLCPP_INFO(node_->get_logger(), "Goal created");
+    // std::cout << "Node pointer: " << node_.get() << std::endl;
+    // std::cout << "Node Use Count: " << node_.use_count() << std::endl;
 
-    // send goal
-    action_client_->async_send_goal(goal_msg, send_goal_options);
-    moveitDoneFlag = false;
-    RCLCPP_INFO(node_->get_logger(), "Goal sent to moveit server");
+    target_pose.header.frame_id = "base_link";  // Set the frame ID
+    target_pose.pose.position.x = 0.3;          // Set desired X position
+    target_pose.pose.position.y = 0.03;          // Set desired Y position
+    target_pose.pose.position.z = 0.93;          // Set desired Z position
+    target_pose.pose.orientation.w = 1.0;
+    move_group_interface.setPoseTarget(target_pose);  
+    RCLCPP_INFO(node_->get_logger(), "Goal created at: x=%f, y=%f, z=%f", target_pose.pose.position.x, target_pose.pose.position.y, target_pose.pose.position.z);
+    
+    moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+    moveit::core::MoveItErrorCode planResult = move_group_interface.plan(my_plan);
+    if (planResult == moveit::core::MoveItErrorCode::SUCCESS){
+        RCLCPP_INFO(node_->get_logger(), "Planning Succeeded !!!");
+        auto executionStarted = move_group_interface.asyncExecute(my_plan);
+        if (executionStarted == moveit::core::MoveItErrorCode::SUCCESS){
+            RCLCPP_INFO(node_->get_logger(), "Execution Started !!!");
+        }
+        else {
+            RCLCPP_WARN(node_->get_logger(), "Execution FAILED !!!!");
+            return BT::NodeStatus::FAILURE;
+        }
+    }
+    else {
+        RCLCPP_WARN(node_->get_logger(), "Planning FAILED !!!!");
+        return BT::NodeStatus::FAILURE;
+    }
+
     return BT::NodeStatus::RUNNING;
 }
 
 BT::NodeStatus MoveArm::onRunning()
-{
-    if (moveitDoneFlag)
-    {
-        RCLCPP_INFO(node_->get_logger(), "Moveit action server has finished");
+{   
+    bool checkPoseResult = goalChecker();
+    if (checkPoseResult){
         return BT::NodeStatus::SUCCESS;
     }
-    return BT::NodeStatus::RUNNING;
-}
-
-void MoveArm::move_group_callback(const GoalHandleMove::WrappedResult &result)
-{
-    switch (result.code)
-    {
-        case rclcpp_action::ResultCode::SUCCEEDED:
-            RCLCPP_INFO(node_->get_logger(), "Goal succeeded");
-            moveitDoneFlag = true;
-            break;
-        case rclcpp_action::ResultCode::ABORTED:
-            RCLCPP_INFO(node_->get_logger(), "Goal was aborted");
-            moveitDoneFlag = true;
-            break;
-        case rclcpp_action::ResultCode::CANCELED:
-            RCLCPP_INFO(node_->get_logger(), "Goal was canceled");
-            moveitDoneFlag = true;
-            break;
-        default:
-            RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
-            moveitDoneFlag = true;
-            break;
+    else {
+        return BT::NodeStatus::RUNNING;
     }
 }
+
+

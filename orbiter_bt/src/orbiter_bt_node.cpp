@@ -5,7 +5,7 @@ const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orb
 OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 {
     RCLCPP_INFO(get_logger(), "OrbiterBTNode has been created.");
-    // this->declare_parameter("inventory_file","none");
+    this->declare_parameter("inventory_file","none");
 }
 
 void OrbiterBTNode::setup()
@@ -21,23 +21,28 @@ void OrbiterBTNode::creatBT()
 {
     // create the behavior tree
     BT::BehaviorTreeFactory factory;
-    // BT::NodeBuilder builder = 
-    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
-    //     return std::make_unique<GoToPose>(name, config, shared_from_this());
-    // };
-    // factory.registerBuilder<GoToPose>("GoToPose", builder);
-    // builder = 
-    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
-    //     return std::make_unique<GetItemInfo>(name, config, shared_from_this());
-    // };
-    // factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
-    BT::NodeBuilder builder = 
+    BT::NodeBuilder builder;
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<GoToPose>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<GoToPose>("GoToPose", builder);
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<GetItemInfo>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
+    
+    RCLCPP_INFO(get_logger(), "MoveArm node creating");
+    builder = 
         [=](const std::string &name, const BT::NodeConfiguration &config) {
         return std::make_unique<MoveArm>(name, config, shared_from_this());
     };
     factory.registerBuilder<MoveArm>("MoveArm", builder);
+    
+    
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_bt.xml");
-    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_patrol.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/getInfo_then_go.xml");
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/moveArm.xml");
     std::cout << "Behavior tree created" << std::endl;
 }
@@ -66,6 +71,9 @@ int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<OrbiterBTNode>("orbiter_bt_node");
+
+    // std::cout << "Node pointer 1: " << node.get() << std::endl;
+
     node->setup();
     rclcpp::spin(node);
     rclcpp::shutdown();

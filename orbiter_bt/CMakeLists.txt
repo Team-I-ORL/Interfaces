@@ -11,10 +11,15 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
+# find_package(moveit REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+
+find_package(moveit_ros_planning_interface REQUIRED)
+find_package(urdf REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 find_package(ament_index_cpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
@@ -41,23 +46,29 @@ set(TARGET_DEPENDS
     behaviortree_cpp_v3
     rclcpp_action
     moveit_msgs
+    moveit_ros_planning_interface
+    
+    urdf
+    visualization_msgs
     nav2_msgs
     tf2
     tf2_geometry_msgs
 )
 
-include_directories(include)
+include_directories(
+  include
+)
 
 add_executable(orbiter_bt_node src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
 ament_target_dependencies(orbiter_bt_node ${TARGET_DEPENDS})
 rosidl_target_interfaces(orbiter_bt_node ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
+target_link_libraries(orbiter_bt_node ${moveit_ros_planning_interface_LIBRARIES})
 
 add_executable(dummy_ims_server src/dummy_ims_server.cpp)
 rosidl_target_interfaces(dummy_ims_server ${PROJECT_NAME} "rosidl_typesupport_cpp")
 ament_target_dependencies(dummy_ims_server rclcpp)
-
 
 install(TARGETS
 orbiter_bt_node
