@@ -7,7 +7,7 @@
 #include <geometry_msgs/msg/pose.hpp>
 #include <string>
 #include <tf2_ros/transform_listener.h>
-
+#include <thread>
 class MoveArm : public BT::StatefulActionNode // using async action
 {
 public:
@@ -33,5 +33,22 @@ public:
 
 
     bool goalChecker();
+
+    std::vector<double> stringToVector(const std::string& s) {
+        std::string numbers = s;
+        numbers.erase(std::remove(numbers.begin(), numbers.end(), '['), numbers.end());
+        numbers.erase(std::remove(numbers.begin(), numbers.end(), ']'), numbers.end());
+
+        std::vector<double> result;
+        std::stringstream ss(numbers);
+
+        for (double i; ss >> i;) {
+            result.push_back(i);
+            if (ss.peek() == ',')
+                ss.ignore();
+        }
+
+        return result;
+    }
 
 };

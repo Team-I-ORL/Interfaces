@@ -11,8 +11,8 @@ class OrbiterBTNode : public rclcpp::Node
 private:
     BT::Tree tree_;
     rclcpp::TimerBase::SharedPtr timer_;
-
 public:
+    ~OrbiterBTNode();
     explicit OrbiterBTNode(const std::string &name);
     void setup();
     void creatBT();

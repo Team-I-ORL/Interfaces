@@ -8,6 +8,11 @@ OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
     this->declare_parameter("inventory_file","none");
 }
 
+OrbiterBTNode::~OrbiterBTNode()
+{
+    std::cout << "OrbiterBTNode is being destroyed" << std::endl;
+}
+
 void OrbiterBTNode::setup()
 {
     // initialize
@@ -53,7 +58,7 @@ void OrbiterBTNode::updateBT()
     BT::NodeStatus tree_status = tree_.tickRoot();
     // BT::NodeStatus tree_status = tree_.tickOnce(); // V4
     if (tree_status == BT::NodeStatus::SUCCESS)
-    {
+    {   
         RCLCPP_INFO(get_logger(), "Behavior tree executed successfully");
     }
     else if (tree_status == BT::NodeStatus::RUNNING)
