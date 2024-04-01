@@ -1,0 +1,4 @@
+uint16 vending_machine_id
+uint16 quantity
+---
+bool success

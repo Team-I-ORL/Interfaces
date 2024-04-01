@@ -29,6 +29,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Item.srv"
   "srv/ItemUpdate.srv"
+  "srv/VendingMachine.srv"
   DEPENDENCIES std_msgs geometry_msgs# Add packages that above messages depend on, in this case std_msgs for msg/Item.msg and srv/Item.srv
 )
 

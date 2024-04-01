@@ -13,7 +13,11 @@
             <output_port name="location"/>
             <output_port name="yaw"/>
             <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
         </Action>
+        <Action ID="vendingMachineActuate">
+            <input_port name="vending_machine_id"/>
+            <input_port default="1" name="quantity_dispense"/>
         <Action ID="graspObject">
             <input_port name="itemInfo"/>
         </Action>

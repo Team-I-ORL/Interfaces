@@ -19,6 +19,7 @@ BT::PortsList GetItemInfo::providedPorts()
         BT::OutputPort<std::string>("location"),
         BT::OutputPort<std::string>("yaw"),
         BT::OutputPort<std::string>("quantity"),
+        BT::OutputPort<std::string>("vending_machine_id")
         };
        
 }

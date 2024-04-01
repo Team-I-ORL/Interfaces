@@ -10,6 +10,7 @@ OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 
 OrbiterBTNode::~OrbiterBTNode()
 {
+    delete this;
     std::cout << "OrbiterBTNode is being destroyed" << std::endl;
 }
 
