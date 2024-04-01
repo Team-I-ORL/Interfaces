@@ -15,33 +15,29 @@ GoToPose::GoToPose(const std::string &name,
 BT::PortsList GoToPose::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("loc"),
-        BT::OutputPort<std::string>("result")};
+        BT::InputPort<std::string>("location"),
+        BT::InputPort<std::string>("yaw"),
+        // BT::OutputPort<std::string>("result")
+        };
 }
-
-// std::vector<double> GoToPose::getGoal()
-// {
-//     // TODO: implement get goal from IMS
-//     std::vector<double> goal = {-1.0, 2.0, 0.785, 0.0}; // {X, Y, Z, theta}
-//     return goal;
-// }
 
 BT::NodeStatus GoToPose::onStart()
 {   
     // Get location names from input port
-    BT::Optional<std::string> loc = getInput<std::string>("loc");
-    // BT::Expected<std::string> loc = getInput<std::string>("loc");
+    BT::Optional<std::string> loc = getInput<std::string>("location");
+    BT::Optional<std::string> yaw = getInput<std::string>("yaw");
     if (!loc)
     {
-        throw BT::RuntimeError("missing required input [loc]");
+        throw BT::RuntimeError("missing required input [location]");
     }
-    RCLCPP_INFO(node_->get_logger(), "Going to %s", loc.value().c_str());    
-    // // Get goal from IMS based on location name
-    // const std::string inv_loc_file = node_->get_parameter("inventory_file").as_string(); // inventory file parsed as a ROS2 parameter
-    // YAML::Node inventory = YAML::LoadFile(inv_loc_file);
-    // std::vector<double> goal = inventory[loc.value()].as<std::vector<double>>(); // reading from yaml
-    std::vector<double> goal = stringToVector(loc.value());
-    RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %f", goal[0], goal[1], goal[2]);
+    if (!yaw)
+    {
+        throw BT::RuntimeError("missing required input [yaw]");
+    }
+    // Get goal from IMS based on location name
+    std::vector<double> goal = bt_string_serialize::stringToVector(loc.value());
+    int yaw = bt_string_serialize::stringToInt(yaw.value());
+    RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %f", goal[0], goal[1], yaw);
     
 
     // Send goal to action server

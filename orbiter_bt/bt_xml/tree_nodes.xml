@@ -3,13 +3,16 @@
     <TreeNodesModel>
         <Action ID="DockAndCharge"/>
         <Action ID="GoToPose">
-            <input_port default="[0,0,0]" name="loc"/>
+            <input_port default="0,0,0" name="location"/>
+            <input_port default="0" name="yaw"/>
         </Action>
         <Action ID="dropItem"/>
         <Action ID="getItemInfo">
-            <output_port name="itemInfo"/>
-            <input_port name="itemName"/>
-            <output_port name="loc"/>
+            <input_port name="id"/>
+            <output_port name="name"/>
+            <output_port name="location"/>
+            <output_port name="yaw"/>
+            <output_port name="quantity"/>
         </Action>
         <Action ID="graspObject">
             <input_port name="itemInfo"/>
