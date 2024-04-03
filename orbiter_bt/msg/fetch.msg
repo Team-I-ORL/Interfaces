@@ -1,0 +1,2 @@
+uint16 inventory_id
+bool status
