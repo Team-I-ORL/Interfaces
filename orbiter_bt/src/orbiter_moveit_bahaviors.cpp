@@ -41,11 +41,20 @@ bool MoveArm::goalChecker(){
     double dy = target_pose.pose.position.y - curPose.transform.translation.y;
     double dz = target_pose.pose.position.z - curPose.transform.translation.z;
 
+    double quatx = target_pose.pose.orientation.x - curPose.transform.rotation.x;
+    double quaty = target_pose.pose.orientation.y - curPose.transform.rotation.y;   
+    double quatz = target_pose.pose.orientation.z - curPose.transform.rotation.z;
+    double quatw = target_pose.pose.orientation.w - curPose.transform.rotation.w;
+
     double dist = sqrt(dx*dx + dy*dy + dz*dz);
     double toleance = move_group_interface.getGoalPositionTolerance();
-;
+    double rotTolerance = move_group_interface.getGoalOrientationTolerance();
     
-    if (dist < toleance){
+    // std::cout << "ROT tolerance is " << rotTolerance << std::endl;
+    // std::cout << "Quaternion error is " << quatx << " " << quaty << " " << quatz << " " << quatw << std::endl;
+    // std::cout << "RPY Error is" << roll << " " << pitch << " " << yaw << std::endl;
+    
+    if (dist < toleance && quatx < rotTolerance && quaty < rotTolerance && quatz < rotTolerance && quatw < rotTolerance){
         move_group_interface.stop();
         move_group_interface.clearPoseTargets();
         // DONT EVER DELETE THE DELAY !!!!! MOVE GROUP NEED TIME TO STOP !!!!!

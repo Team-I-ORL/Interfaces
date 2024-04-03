@@ -4,8 +4,8 @@
     <BehaviorTree ID="BehaviorTree">
     
         <Sequence>
-            <Action ID="getItemInfo" itemInfo="" itemName="default" loc="{loc}"/>
-            <!-- <SetBlackboard output_key="loc" value="[1,1,1]" /> -->
+            <!-- <Action ID="getItemInfo" itemInfo="" itemName="default" loc="{loc}"/> -->
+            <SetBlackboard output_key="loc" value="[1,1,1]" />
             <Action ID="GoToPose" loc="{loc}"/>
         </Sequence>
     </BehaviorTree>
