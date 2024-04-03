@@ -19,6 +19,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/fetch.msg"
   "srv/Ims.srv"
 )
 
