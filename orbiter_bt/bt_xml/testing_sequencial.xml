@@ -3,24 +3,31 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Action ID="getItemInfo" itemInfo="" itemName="" loc="{loc}"/>
-            <Action ID="GoToPose" loc="{loc}"/>
-            <Action ID="graspObject" itemInfo=""/>
-            <Action ID="GoToPose" loc="[0,0,0]"/>
-            <Action ID="dropItem"/>
+            <SetBlackboard output_key="{id}" value="1"/>
+            <Action ID="getItemInfo" arm_goal="{arm_goal}" id="{id}" name="{name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
+            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <Action ID="MoveArm" arm_goal="{arm_goal}"/>
+            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
         <Action ID="DockAndCharge"/>
         <Action ID="GoToPose">
-            <input_port default="[0,0,0]" name="loc"/>
+            <input_port default="0,0,0" name="nav_goal"/>
+            <input_port default="0" name="yaw"/>
         </Action>
-        <Action ID="dropItem"/>
+        <Action ID="MoveArm">
+            <input_port name="arm_goal"/>
+        </Action>
         <Action ID="getItemInfo">
-            <output_port name="itemInfo"/>
-            <input_port name="itemName"/>
-            <output_port name="loc"/>
+            <output_port name="arm_goal"/>
+            <input_port name="id"/>
+            <output_port name="name"/>
+            <output_port name="nav_goal"/>
+            <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
+            <output_port name="yaw"/>
         </Action>
         <Action ID="graspObject">
             <input_port name="itemInfo"/>
@@ -35,6 +42,10 @@
         <Condition ID="isGrabbed"/>
         <Condition ID="isVoiceOver"/>
         <Condition ID="noOveride"/>
+        <Action ID="vendingMachineActuate">
+            <input_port default="1" name="quantity_dispense"/>
+            <input_port name="vending_machine_id"/>
+        </Action>
         <Action ID="voiceOverInfo">
             <input_port name="itemInfo"/>
         </Action>

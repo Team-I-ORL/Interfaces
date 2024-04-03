@@ -12,16 +12,16 @@ MoveArm::MoveArm(const std::string &name,
 BT::PortsList MoveArm::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("goal"),
+        BT::InputPort<std::string>("arm_goal"),
         };
 }  
 
 BT::NodeStatus MoveArm::onStart()
 {
-    auto goal = getInput<std::string>("goal");
+    auto goal = getInput<std::string>("arm_goal");
     if (!goal)
     {
-        RCLCPP_ERROR(node_->get_logger(), "Missing required input [goal]");
+        RCLCPP_ERROR(node_->get_logger(), "Missing required input [arm_goal]");
         return BT::NodeStatus::FAILURE;
     }
 

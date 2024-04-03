@@ -6,7 +6,7 @@ ActuateVendingMachine::ActuateVendingMachine(const std::string &name,
     : BT::StatefulActionNode(name, config), node_(node)
 {
     RCLCPP_INFO(node_->get_logger(), "ActuateVendingMachine has been created.");
-    vending_machine_client == node_->create_client<ims_interfaces::srv::VendingMachine>("vending_machine_service");
+    vending_machine_client = node_->create_client<ims_interfaces::srv::VendingMachine>("vending_machine_service");
 }
 
 BT::PortsList ActuateVendingMachine::providedPorts()

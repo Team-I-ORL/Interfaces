@@ -15,7 +15,7 @@ GoToPose::GoToPose(const std::string &name,
 BT::PortsList GoToPose::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("location"),
+        BT::InputPort<std::string>("nav_goal"),
         BT::InputPort<std::string>("yaw"),
         // BT::OutputPort<std::string>("result")
         };
@@ -24,11 +24,11 @@ BT::PortsList GoToPose::providedPorts()
 BT::NodeStatus GoToPose::onStart()
 {   
     // Get location names from input port
-    BT::Optional<std::string> loc = getInput<std::string>("location");
+    BT::Optional<std::string> loc = getInput<std::string>("nav_goal");
     BT::Optional<std::string> yaw = getInput<std::string>("yaw");
     if (!loc)
     {
-        throw BT::RuntimeError("missing required input [location]");
+        throw BT::RuntimeError("missing required input [nav_goal]");
     }
     if (!yaw)
     {
@@ -36,8 +36,8 @@ BT::NodeStatus GoToPose::onStart()
     }
     // Get goal from IMS based on location name
     std::vector<double> goal = bt_string_serialize::stringToVector(loc.value());
-    int yaw = bt_string_serialize::stringToInt(yaw.value());
-    RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %f", goal[0], goal[1], yaw);
+    int theta = bt_string_serialize::stringToInt(yaw.value());
+    RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %i", goal[0], goal[1], theta);
     
 
     // Send goal to action server

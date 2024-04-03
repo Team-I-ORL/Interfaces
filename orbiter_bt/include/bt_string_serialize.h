@@ -1,3 +1,6 @@
+#ifndef BT_STRING_SERIALIZE_H
+#define BT_STRING_SERIALIZE_H
+
 #include <vector>
 #include <string>
 #include <sstream>
@@ -36,7 +39,7 @@ public:
     static std::string vectorToString(const std::vector<double>& vec){
         // convert vector to string
         std::string result;
-        for (int i = 0; i < vec.size(); i++){
+        for (size_t i = 0; i < vec.size(); i++){
             result += std::to_string(vec[i]);
             if (i != vec.size() - 1){
                 result += ",";
@@ -81,3 +84,4 @@ public:
         return result;
     }
 };
+#endif

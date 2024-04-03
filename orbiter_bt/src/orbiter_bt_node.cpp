@@ -33,22 +33,27 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GoToPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<GoToPose>("GoToPose", builder);
+    
     builder = 
         [=](const std::string &name, const BT::NodeConfiguration &config) {
         return std::make_unique<GetItemInfo>(name, config, shared_from_this());
     };
     factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
     
-    RCLCPP_INFO(get_logger(), "MoveArm node creating");
+    RCLCPP_INFO(get_logger(), "MoveArm creating");
     builder = 
         [=](const std::string &name, const BT::NodeConfiguration &config) {
         return std::make_unique<MoveArm>(name, config, shared_from_this());
     };
     factory.registerBuilder<MoveArm>("MoveArm", builder);
+   
+    RCLCPP_INFO(get_logger(), "vendingMachine creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<ActuateVendingMachine>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<ActuateVendingMachine>("vendingMachineActuate", builder);
     
-    
-    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/orbiter_bt.xml");
-    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/getInfo_then_go.xml");
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/moveArm.xml");
     std::cout << "Behavior tree created" << std::endl;
 }
