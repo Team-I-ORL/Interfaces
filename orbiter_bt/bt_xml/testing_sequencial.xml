@@ -19,6 +19,11 @@
         </Action>
         <Action ID="MoveArm">
             <input_port name="arm_goal"/>
+            <input_port default="0,0,0" name="nav_goal"/>
+            <input_port default="0" name="yaw"/>
+        </Action>
+        <Action ID="MoveArm">
+            <input_port name="arm_goal"/>
         </Action>
         <Action ID="getItemInfo">
             <output_port name="arm_goal"/>
@@ -42,6 +47,10 @@
         <Condition ID="isGrabbed"/>
         <Condition ID="isVoiceOver"/>
         <Condition ID="noOveride"/>
+        <Action ID="vendingMachineActuate">
+            <input_port default="1" name="quantity_dispense"/>
+            <input_port name="vending_machine_id"/>
+        </Action>
         <Action ID="vendingMachineActuate">
             <input_port default="1" name="quantity_dispense"/>
             <input_port name="vending_machine_id"/>

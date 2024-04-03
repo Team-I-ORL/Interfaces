@@ -46,6 +46,7 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<MoveArm>(name, config, shared_from_this());
     };
     factory.registerBuilder<MoveArm>("MoveArm", builder);
+<<<<<<< HEAD
 
     RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
     builder = 
@@ -53,6 +54,8 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<MoveArm_Wrapper>(name, config, shared_from_this());
     };
     factory.registerBuilder<MoveArm_Wrapper>("MoveArm_Wrapper", builder);
+=======
+>>>>>>> 683535ec9ae8da83843ebca4a235774d4508b1ac
    
     RCLCPP_INFO(get_logger(), "vendingMachine creating");
     builder = 
@@ -61,7 +64,11 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<ActuateVendingMachine>("vendingMachineActuate", builder);
     
+<<<<<<< HEAD
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
+=======
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/moveArm.xml");
+>>>>>>> 683535ec9ae8da83843ebca4a235774d4508b1ac
     std::cout << "Behavior tree created" << std::endl;
 }
 
