@@ -15,11 +15,7 @@ BT::PortsList GetItemInfo::providedPorts()
 {
     return {
         BT::InputPort<std::string>("id"),
-<<<<<<< HEAD
         BT::OutputPort<std::string>("item_name"),
-=======
-        BT::OutputPort<std::string>("name"),
->>>>>>> 683535ec9ae8da83843ebca4a235774d4508b1ac
         BT::OutputPort<std::string>("arm_goal"),
         BT::OutputPort<std::string>("nav_goal"),
         BT::OutputPort<std::string>("yaw"),
@@ -67,11 +63,7 @@ void GetItemInfo::result_callback(rclcpp::Client<ims_interfaces::srv::Item>::Sha
     RCLCPP_INFO(node_->get_logger(), "Response received, success");
     auto response = result.get();
     
-<<<<<<< HEAD
     setOutput("item_name", response->name);
-=======
-    setOutput("name", response->name);
->>>>>>> 683535ec9ae8da83843ebca4a235774d4508b1ac
     auto arm_goal = response->location;
     arm_goal.x = arm_goal.x + 0.1;
     arm_goal.y = arm_goal.y;
