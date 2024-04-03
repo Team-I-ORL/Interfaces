@@ -16,6 +16,7 @@ find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(ims_interfaces REQUIRED)
 
 find_package(geometry_msgs REQUIRED)
@@ -71,6 +72,9 @@ include_directories(
 add_executable(orbiter_bt_node src/orbiter_bt_node.cpp ${BEHAVIOR_SOURCES})
 ament_target_dependencies(orbiter_bt_node ${TARGET_DEPENDS})
 rosidl_target_interfaces(orbiter_bt_node ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(orbiter_bt_node
+    ${tf2_LIBRARIES}
+    ${tf2_ros_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${moveit_ros_planning_interface_LIBRARIES})

@@ -4,7 +4,9 @@ MoveArm_Wrapper::MoveArm_Wrapper(const std::string &name,
                  const rclcpp::Node::SharedPtr node)
     : BT::StatefulActionNode(name, config),
     node_(node),
-    client(node->create_client<orbiter_bt::srv::MoveArm>("move_arm"))
+    client(node->create_client<orbiter_bt::srv::MoveArm>("move_arm")),
+    tfBuffer(node->get_clock()),
+    tf_listener(tfBuffer)
 {
     RCLCPP_INFO(node_->get_logger(), "Move Arm Wrapper Version Creating");
 }
@@ -12,7 +14,7 @@ MoveArm_Wrapper::MoveArm_Wrapper(const std::string &name,
 BT::PortsList MoveArm_Wrapper::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("arm_goal"),
+        BT::InputPort<std::string>("arm_goal"), // arm goal in map frame
         };
 }  
 
@@ -26,18 +28,29 @@ BT::NodeStatus MoveArm_Wrapper::onStart()
     }
 
     std::vector<double> goalVec = bt_string_serialize::stringToVector(goal.value());
+    double x = goalVec[0];
+    double y = goalVec[1];
+    double z = goalVec[2];
+
     auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
-    geometry_msgs::msg::Pose targetPose;
-    targetPose.position.x = goalVec[0];
-    targetPose.position.y = goalVec[1];
-    targetPose.position.z = goalVec[2];
-    targetPose.orientation.x = 0.0;
-    targetPose.orientation.y = 0.0;
-    targetPose.orientation.z = 0.0;
-    targetPose.orientation.w = 1.0;
+    geometry_msgs::msg::PoseStamped target_map;
+    geometry_msgs::msg::PoseStamped targetPose;
+    target_map.header.frame_id = "map";
+    target_map.pose.position.x = x;
+    target_map.pose.position.y = y;
+    target_map.pose.position.z = z;
+    target_map.pose.orientation.w = 1.0;
+
+    if (!tfBuffer.canTransform("map", "base_link", tf2::TimePointZero)) {
+        RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
+        return BT::NodeStatus::FAILURE;
+    }
+
+    tfBuffer.transform(target_map, targetPose, "base_link");
+    
     request->target_pose = targetPose;
 
-    RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", targetPose.position.x, targetPose.position.y, targetPose.position.z);
+    RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", targetPose.pose.position.x, targetPose.pose.position.y, targetPose.pose.position.z);
     auto result = client->async_send_request(request, std::bind(&MoveArm_Wrapper::result_callback, this, std::placeholders::_1));
     return BT::NodeStatus::RUNNING;
 }

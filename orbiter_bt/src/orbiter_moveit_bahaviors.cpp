@@ -75,15 +75,24 @@ BT::NodeStatus MoveArm::onStart()
     {
         throw BT::RuntimeError("missing required input [arm_goal]");
     }
+
     std::vector<double> goalVec = bt_string_serialize::stringToVector(goal.value());
     double x = goalVec[0];
     double y = goalVec[1];
     double z = goalVec[2];
-    target_pose.header.frame_id = "base_link";  // Set the frame ID
-    target_pose.pose.position.x = x;          // Set desired X position
-    target_pose.pose.position.y = y;          // Set desired Y position
-    target_pose.pose.position.z = z;          // Set desired Z position
-    target_pose.pose.orientation.w = 1.0;
+
+    geometry_msgs::msg::PoseStamped target_map;
+    target_map.header.frame_id = "map";  // Set the frame ID
+    target_map.pose.position.x = x;          // Set desired X position
+    target_map.pose.position.y = y;          // Set desired Y position
+    target_map.pose.position.z = z;          // Set desired Z position
+    target_map.pose.orientation.w = 1.0;
+    if (!tfBuffer.canTransform("map", BASE_LINK, tf2::TimePointZero)) {
+        RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
+        return BT::NodeStatus::FAILURE;
+    }
+    tfBuffer.transform(target_map, target_pose, BASE_LINK);
+
     move_group_interface.setPoseTarget(target_pose);  
     RCLCPP_INFO(node_->get_logger(), "Goal created at: x=%f, y=%f, z=%f", target_pose.pose.position.x, target_pose.pose.position.y, target_pose.pose.position.z);
     if (goalChecker()){
