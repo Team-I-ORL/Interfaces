@@ -3,15 +3,19 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <SetBlackboard output_key="{id}" value="1"/>
+            <!-- <SetBlackboard output_key="id" value="1"/> -->
+            <Action ID="waitUntilActivate" id="{id}"/>
             <Action ID="getItemInfo" arm_goal="{arm_goal}" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
-            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <!-- <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
             <Action ID="MoveArm" arm_goal="{arm_goal}"/>
-            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
+            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/> -->
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
+        <Action ID="waitUntilActivate">
+            <output_port name="id"/>
+        </Action>
         <Action ID="DockAndCharge"/>
         <Action ID="GoToPose">
             <input_port default="0,0,0" name="nav_goal"/>

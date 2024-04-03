@@ -60,6 +60,13 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<ActuateVendingMachine>(name, config, shared_from_this());
     };
     factory.registerBuilder<ActuateVendingMachine>("vendingMachineActuate", builder);
+
+    RCLCPP_INFO(get_logger(), "waitUntilActivate creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<wait_until_activate>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<wait_until_activate>("waitUntilActivate", builder);
     
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     std::cout << "Behavior tree created" << std::endl;

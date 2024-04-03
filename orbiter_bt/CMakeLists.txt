@@ -28,7 +28,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/fetch.msg"
+  "msg/Fetch.msg"
   "srv/Ims.srv"
   "srv/MoveArm.srv"
   DEPENDENCIES std_msgs geometry_msgs
@@ -46,6 +46,7 @@ src/orbiter_getItemInfo.cpp
 src/orbiter_moveit_bahaviors.cpp
 src/orbiter_vendingMachineActuate.cpp
 src/orbiter_moveit_bahaviors_wrapper.cpp
+src/orbiter_waitUntilActivate.cpp
 )
 
 set(TARGET_DEPENDS
