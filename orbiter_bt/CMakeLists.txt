@@ -16,6 +16,7 @@ find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(ims_interfaces REQUIRED)
 
 find_package(geometry_msgs REQUIRED)
 
@@ -42,6 +43,8 @@ set(BEHAVIOR_SOURCES
 src/orbiter_nav_behaviors.cpp
 src/orbiter_getItemInfo.cpp
 src/orbiter_moveit_bahaviors.cpp
+src/orbiter_vendingMachineActuate.cpp
+src/orbiter_moveit_bahaviors_wrapper.cpp
 )
 
 set(TARGET_DEPENDS
@@ -51,7 +54,7 @@ set(TARGET_DEPENDS
     rclcpp_action
     moveit_msgs
     moveit_ros_planning_interface
-    
+    ims_interfaces
     urdf
     visualization_msgs
     nav2_msgs
@@ -69,6 +72,8 @@ rosidl_target_interfaces(orbiter_bt_node ${PROJECT_NAME} "rosidl_typesupport_cpp
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${moveit_ros_planning_interface_LIBRARIES})
+ament_target_dependencies(orbiter_bt_node ims_interfaces)
+
 
 add_executable(dummy_ims_server src/dummy_ims_server.cpp)
 rosidl_target_interfaces(dummy_ims_server ${PROJECT_NAME} "rosidl_typesupport_cpp")

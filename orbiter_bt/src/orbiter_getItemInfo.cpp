@@ -15,8 +15,9 @@ BT::PortsList GetItemInfo::providedPorts()
 {
     return {
         BT::InputPort<std::string>("id"),
-        BT::OutputPort<std::string>("name"),
-        BT::OutputPort<std::string>("location"),
+        BT::OutputPort<std::string>("item_name"),
+        BT::OutputPort<std::string>("arm_goal"),
+        BT::OutputPort<std::string>("nav_goal"),
         BT::OutputPort<std::string>("yaw"),
         BT::OutputPort<std::string>("quantity"),
         BT::OutputPort<std::string>("vending_machine_id")
@@ -62,10 +63,20 @@ void GetItemInfo::result_callback(rclcpp::Client<ims_interfaces::srv::Item>::Sha
     RCLCPP_INFO(node_->get_logger(), "Response received, success");
     auto response = result.get();
     
-    setOutput("name", response->name);
-    setOutput("location", bt_string_serialize::geoMsgPtToString(response->location));
+    setOutput("item_name", response->name);
+    auto arm_goal = response->location;
+    arm_goal.x = arm_goal.x + 0.1;
+    arm_goal.y = arm_goal.y;
+    arm_goal.z = 0.0;
+    setOutput("arm_goal", bt_string_serialize::geoMsgPtToString(arm_goal));
+    auto nav_goal = response->location;
+    nav_goal.x = nav_goal.x + 0.5;
+    nav_goal.y = nav_goal.y;
+    nav_goal.z = 0.0;
+    setOutput("nav_goal", bt_string_serialize::geoMsgPtToString(nav_goal));
     setOutput("yaw", bt_string_serialize::intToString(response->yaw));
     setOutput("quantity", bt_string_serialize::intToString(response->quantity));
+    setOutput("vending_machine_id", bt_string_serialize::intToString(response->vending_machine_id));
 
     this->finished = true;
 }

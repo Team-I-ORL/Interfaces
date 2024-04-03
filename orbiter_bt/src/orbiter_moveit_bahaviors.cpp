@@ -23,7 +23,7 @@ MoveArm::MoveArm(const std::string &name,
 BT::PortsList MoveArm::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("goal"),
+        BT::InputPort<std::string>("arm_goal"),
         // BT::OutputPort<std::string>("result")
         };
 }
@@ -70,12 +70,12 @@ bool MoveArm::goalChecker(){
 BT::NodeStatus MoveArm::onStart()
 {   
     // // Get goal from input port
-    BT::Optional<std::string> goal = getInput<std::string>("goal");
+    BT::Optional<std::string> goal = getInput<std::string>("arm_goal");
     if (!goal)
     {
-        throw BT::RuntimeError("missing required input [goal]");
+        throw BT::RuntimeError("missing required input [arm_goal]");
     }
-    std::vector<double> goalVec = stringToVector(goal.value());
+    std::vector<double> goalVec = bt_string_serialize::stringToVector(goal.value());
     double x = goalVec[0];
     double y = goalVec[1];
     double z = goalVec[2];

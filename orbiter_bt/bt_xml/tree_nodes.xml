@@ -1,16 +1,15 @@
 <root main_tree_to_execute="BehaviorTree">
-
     <TreeNodesModel>
         <Action ID="DockAndCharge"/>
         <Action ID="GoToPose">
-            <input_port default="0,0,0" name="location"/>
+            <input_port default="0,0,0" name="nav_goal"/>
             <input_port default="0" name="yaw"/>
         </Action>
-        <Action ID="dropItem"/>
         <Action ID="getItemInfo">
             <input_port name="id"/>
             <output_port name="name"/>
-            <output_port name="location"/>
+            <output_port name="nav_goal"/>
+            <output_port name="arm_goal"/>
             <output_port name="yaw"/>
             <output_port name="quantity"/>
             <output_port name="vending_machine_id"/>
@@ -18,6 +17,10 @@
         <Action ID="vendingMachineActuate">
             <input_port name="vending_machine_id"/>
             <input_port default="1" name="quantity_dispense"/>
+        </Action>
+        <Action ID="MoveArm">
+            <input_port name="arm_goal"/>
+        </Action>
         <Action ID="graspObject">
             <input_port name="itemInfo"/>
         </Action>

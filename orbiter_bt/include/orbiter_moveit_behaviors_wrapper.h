@@ -2,13 +2,13 @@
 #include "rclcpp/rclcpp.hpp"
 #include "orbiter_bt/srv/move_arm.hpp"
 #include <moveit/move_group_interface/move_group_interface.h>
-
+#include <bt_string_serialize.h>
 // #include <geometry_msgs/msg/pose.hpp>
 
-class MoveArm : public BT::StatefulActionNode // using async action
+class MoveArm_Wrapper : public BT::StatefulActionNode // using async action
 {
 public:
-    MoveArm(const std::string &name,
+    MoveArm_Wrapper(const std::string &name,
             const BT::NodeConfiguration &config,
             rclcpp::Node::SharedPtr node);
     

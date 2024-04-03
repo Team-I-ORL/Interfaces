@@ -1,5 +1,5 @@
 #include "orbiter_moveit_behaviors_wrapper.h"
-MoveArm::MoveArm(const std::string &name,
+MoveArm_Wrapper::MoveArm_Wrapper(const std::string &name,
                  const BT::NodeConfiguration &config,
                  const rclcpp::Node::SharedPtr node)
     : BT::StatefulActionNode(name, config),
@@ -9,27 +9,28 @@ MoveArm::MoveArm(const std::string &name,
     RCLCPP_INFO(node_->get_logger(), "Move Arm Wrapper Version Creating");
 }
 
-BT::PortsList MoveArm::providedPorts()
+BT::PortsList MoveArm_Wrapper::providedPorts()
 {
     return {
-        BT::InputPort<std::string>("goal"),
+        BT::InputPort<std::string>("arm_goal"),
         };
 }  
 
-BT::NodeStatus MoveArm::onStart()
+BT::NodeStatus MoveArm_Wrapper::onStart()
 {
-    auto goal = getInput<std::string>("goal");
+    auto goal = getInput<std::string>("arm_goal");
     if (!goal)
     {
-        RCLCPP_ERROR(node_->get_logger(), "Missing required input [goal]");
+        RCLCPP_ERROR(node_->get_logger(), "Missing required input [arm_goal]");
         return BT::NodeStatus::FAILURE;
     }
 
+    std::vector<double> goalVec = bt_string_serialize::stringToVector(goal.value());
     auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
     geometry_msgs::msg::Pose targetPose;
-    targetPose.position.x = 0.5;
-    targetPose.position.y = 0.5;
-    targetPose.position.z = 0.5;
+    targetPose.position.x = goalVec[0];
+    targetPose.position.y = goalVec[1];
+    targetPose.position.z = goalVec[2];
     targetPose.orientation.x = 0.0;
     targetPose.orientation.y = 0.0;
     targetPose.orientation.z = 0.0;
@@ -37,11 +38,11 @@ BT::NodeStatus MoveArm::onStart()
     request->target_pose = targetPose;
 
     RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", targetPose.position.x, targetPose.position.y, targetPose.position.z);
-    auto result = client->async_send_request(request, std::bind(&MoveArm::result_callback, this, std::placeholders::_1));
+    auto result = client->async_send_request(request, std::bind(&MoveArm_Wrapper::result_callback, this, std::placeholders::_1));
     return BT::NodeStatus::RUNNING;
 }
 
-BT::NodeStatus MoveArm::onRunning()
+BT::NodeStatus MoveArm_Wrapper::onRunning()
 {
     if (finished)
     {
@@ -59,7 +60,7 @@ BT::NodeStatus MoveArm::onRunning()
     return BT::NodeStatus::RUNNING;
 }
 
-void MoveArm::result_callback(rclcpp::Client<orbiter_bt::srv::MoveArm>::SharedFuture result)
+void MoveArm_Wrapper::result_callback(rclcpp::Client<orbiter_bt::srv::MoveArm>::SharedFuture result)
 {
     finished = true;
     auto response = result.get();

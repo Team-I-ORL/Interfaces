@@ -8,6 +8,7 @@
 #include <string>
 #include <tf2_ros/transform_listener.h>
 #include <thread>
+#include <bt_string_serialize.h>
 class MoveArm : public BT::StatefulActionNode // using async action
 {
 public:
