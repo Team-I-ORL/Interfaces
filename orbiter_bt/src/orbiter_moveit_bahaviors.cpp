@@ -29,16 +29,32 @@ BT::PortsList MoveArm::providedPorts()
 }
 
 bool MoveArm::goalChecker(){
+    // rclcpp::Time now = node_->get_clock()->now();
+    // auto curPose = tf_buffer_->lookupTransform(BASE_LINK, EE_LINK, now, 100);
+    if (!tfBuffer.canTransform(BASE_LINK, EE_LINK, tf2::TimePointZero)) {
+        RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
+        return false;
+    }
+
     auto curPose = tfBuffer.lookupTransform(BASE_LINK, EE_LINK,tf2::TimePointZero);
     double dx = target_pose.pose.position.x - curPose.transform.translation.x;
     double dy = target_pose.pose.position.y - curPose.transform.translation.y;
     double dz = target_pose.pose.position.z - curPose.transform.translation.z;
 
+    double quatx = target_pose.pose.orientation.x - curPose.transform.rotation.x;
+    double quaty = target_pose.pose.orientation.y - curPose.transform.rotation.y;   
+    double quatz = target_pose.pose.orientation.z - curPose.transform.rotation.z;
+    double quatw = target_pose.pose.orientation.w - curPose.transform.rotation.w;
+
     double dist = sqrt(dx*dx + dy*dy + dz*dz);
     double toleance = move_group_interface.getGoalPositionTolerance();
-;
+    double rotTolerance = move_group_interface.getGoalOrientationTolerance();
     
-    if (dist < toleance){
+    // std::cout << "ROT tolerance is " << rotTolerance << std::endl;
+    // std::cout << "Quaternion error is " << quatx << " " << quaty << " " << quatz << " " << quatw << std::endl;
+    // std::cout << "RPY Error is" << roll << " " << pitch << " " << yaw << std::endl;
+    
+    if (dist < toleance && quatx < rotTolerance && quaty < rotTolerance && quatz < rotTolerance && quatw < rotTolerance){
         move_group_interface.stop();
         move_group_interface.clearPoseTargets();
         // DONT EVER DELETE THE DELAY !!!!! MOVE GROUP NEED TIME TO STOP !!!!!
@@ -74,6 +90,7 @@ BT::NodeStatus MoveArm::onStart()
         RCLCPP_INFO(node_->get_logger(), "Already at Pose Not Planning");
         return BT::NodeStatus::SUCCESS;
     }
+    RCLCPP_INFO(node_->get_logger(), "Goal not reached");
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
     moveit::core::MoveItErrorCode planResult = move_group_interface.plan(my_plan);
     if (planResult == moveit::core::MoveItErrorCode::SUCCESS){

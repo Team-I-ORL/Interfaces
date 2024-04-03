@@ -16,7 +16,7 @@ public:
             rclcpp::Node::SharedPtr node);
     rclcpp::Node::SharedPtr node_;
 
-    const std::string PLANNING_GROUP = "manipulator";
+    const std::string PLANNING_GROUP = "arm";
     const std::string BASE_LINK = "base_link";
     std::string EE_LINK;
 
