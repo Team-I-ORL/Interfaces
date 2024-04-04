@@ -3,12 +3,20 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <!-- <SetBlackboard output_key="id" value="1"/> -->
-            <Action ID="waitUntilActivate" id="{id}"/>
-            <Action ID="getItemInfo" arm_goal="{arm_goal}" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
-            <!-- <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
-            <Action ID="MoveArm" arm_goal="{arm_goal}"/>
-            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/> -->
+            <SetBlackboard output_key="arm_goal" value="3.15,1.41,1.0"/>
+            <SetBlackboard output_key="nav_goal" value="3.01,0.67"/>
+            <SetBlackboard output_key="yaw" value="1"/>
+            <!-- <Action ID="waitUntilActivate" id="{id}"/>
+            <Action ID="getItemInfo" arm_goal="{arm_goal}" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/> -->
+            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+
+            <SetBlackboard output_key="arm_goal" value="3.31,0.87,0.64"/>
+            <SetBlackboard output_key="nav_goal" value="6.47,-3.7"/>
+            <SetBlackboard output_key="yaw" value="0"/>
+            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <!-- <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/> -->
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
@@ -21,12 +29,8 @@
             <input_port default="0,0,0" name="nav_goal"/>
             <input_port default="0" name="yaw"/>
         </Action>
-        <Action ID="MoveArm">
-            <input_port name="arm_goal"/>
-            <input_port default="0,0,0" name="nav_goal"/>
-            <input_port default="0" name="yaw"/>
-        </Action>
-        <Action ID="MoveArm">
+
+        <Action ID="MoveArm_Wrapper">
             <input_port name="arm_goal"/>
         </Action>
         <Action ID="getItemInfo">

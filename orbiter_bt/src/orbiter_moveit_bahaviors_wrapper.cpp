@@ -34,23 +34,22 @@ BT::NodeStatus MoveArm_Wrapper::onStart()
 
     auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
     geometry_msgs::msg::PoseStamped target_map;
-    geometry_msgs::msg::PoseStamped targetPose;
+    // geometry_msgs::msg::PoseStamped targetPose;
     target_map.header.frame_id = "map";
     target_map.pose.position.x = x;
     target_map.pose.position.y = y;
     target_map.pose.position.z = z;
     target_map.pose.orientation.w = 1.0;
 
-    if (!tfBuffer.canTransform("map", "base_link", tf2::TimePointZero)) {
-        RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
-        return BT::NodeStatus::FAILURE;
-    }
+    // if (!tfBuffer.canTransform("map", "base_link", tf2::TimePointZero)) {
+    //     RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
+    //     return BT::NodeStatus::FAILURE;
+    // }
 
-    tfBuffer.transform(target_map, targetPose, "base_link");
-    
-    request->target_pose = targetPose;
+    // tfBuffer.transform(target_map, targetPose, "base_link");
+    request->target_pose = target_map;
 
-    RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", targetPose.pose.position.x, targetPose.pose.position.y, targetPose.pose.position.z);
+    RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", target_map.pose.position.x, target_map.pose.position.y, target_map.pose.position.z);
     auto result = client->async_send_request(request, std::bind(&MoveArm_Wrapper::result_callback, this, std::placeholders::_1));
     return BT::NodeStatus::RUNNING;
 }
@@ -60,7 +59,8 @@ BT::NodeStatus MoveArm_Wrapper::onRunning()
     if (finished)
     {
         if (moveit_result == true)
-        {
+        {   
+            finished = false;
             RCLCPP_INFO(node_->get_logger(), "Move Arm Succeeded");
             return BT::NodeStatus::SUCCESS;
         }
