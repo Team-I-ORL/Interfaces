@@ -6,6 +6,7 @@
 #include "orbiter_waitUntilActivate.h"
 #include "orbiter_vendingMachineActuate.h"
 #include "orbiter_getItemInfo.h"
+#include "orbiter_getVendingLoc.h"
 #include "ament_index_cpp/get_package_share_directory.hpp"
 // #include "behaviortree_cpp/bt_factory.h"
 

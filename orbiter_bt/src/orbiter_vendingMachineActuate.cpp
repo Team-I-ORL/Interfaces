@@ -6,7 +6,8 @@ ActuateVendingMachine::ActuateVendingMachine(const std::string &name,
     : BT::StatefulActionNode(name, config), node_(node)
 {
     RCLCPP_INFO(node_->get_logger(), "ActuateVendingMachine has been created.");
-    vending_machine_client = node_->create_client<ims_interfaces::srv::VendingMachine>("vending_machine_service");
+    // vending_machine_client = node_->create_client<ims_interfaces::srv::VendingMachine>("vending_machine_service");
+    vending_machine_publisher = node_->create_publisher<std_msgs::msg::String>("ping/primitive", 10);
 }
 
 BT::PortsList ActuateVendingMachine::providedPorts()
@@ -17,49 +18,48 @@ BT::PortsList ActuateVendingMachine::providedPorts()
     };
 }
 
-BT::NodeStatus ActuateVendingMachine::onStart(){
-
-    if (!vending_machine_client->wait_for_service(std::chrono::seconds(1))) {
-        RCLCPP_ERROR(node_->get_logger(), "Vending machine service not available after waiting");
-        return BT::NodeStatus::FAILURE;
-    }
-    finished = false;
+BT::NodeStatus ActuateVendingMachine::onStart() {
+    // if (!vending_machine_client->wait_for_service(std::chrono::seconds(1))) {
+    //     RCLCPP_ERROR(node_->get_logger(), "Vending machine service not available after waiting");
+    //     return BT::NodeStatus::FAILURE;
+    // }
+    // finished = false;
     BT::Optional<std::string> vending_machine_id = getInput<std::string>("vending_machine_id");
-    int id_request = bt_string_serialize::stringToInt(vending_machine_id.value());
-    auto request = std::make_shared<ims_interfaces::srv::VendingMachine::Request>();
-    request->vending_machine_id = id_request;
-    request->quantity = bt_string_serialize::stringToInt(getInput<std::string>("quantity_dispense").value());
-    auto result = vending_machine_client->async_send_request(request, std::bind(&ActuateVendingMachine::result_callback, this, std::placeholders::_1));
-    RCLCPP_INFO(node_->get_logger(), "Vending Machine Request sent, waiting for response.");
+    int vendor_id = bt_string_serialize::stringToInt(vending_machine_id.value());
+    int quantity_requested = bt_string_serialize::stringToInt(getInput<std::string>("quantity_dispense").value());
+
+    auto message = std_msgs::msg::String();
+    int action = 1; int requestor = 69;
+    std::string dat = "<" + std::to_string(vendor_id) + ":" + std::to_string(action) + ":" + std::to_string(requestor) + ">";
+    message.data = dat;
+    vending_machine_publisher->publish(message);
+    RCLCPP_INFO(node_->get_logger(), "Vending Machine Request sent :-)");
+    // finished = true;
+    end_time = std::chrono::system_clock::now() + std::chrono::seconds(7);
     return BT::NodeStatus::RUNNING;
 }
 
 BT::NodeStatus ActuateVendingMachine::onRunning(){
-    if (finished){
-        if (successful){
-            return BT::NodeStatus::SUCCESS;
-        }
-        else{
-            return BT::NodeStatus::FAILURE;
-        }
+    if (std::chrono::system_clock::now() > end_time){
+        return BT::NodeStatus::SUCCESS;
     }
     else{
         return BT::NodeStatus::RUNNING;
     }
 }
 
-void ActuateVendingMachine::result_callback(rclcpp::Client<ims_interfaces::srv::VendingMachine>::SharedFuture result){
-    RCLCPP_INFO(node_->get_logger(), "Response received");
-    auto response = result.get();
-    if (response->success){
-        RCLCPP_INFO(node_->get_logger(), "Vending Machine Actuation successful");
-        finished = true;
-        successful = true;
-        return;
-    }
-    else{
-        RCLCPP_ERROR(node_->get_logger(), "Failed to dispense items from vending machine");
-        finished = true;
-        successful = false;
-    }
-}
+// void ActuateVendingMachine::result_callback(rclcpp::Client<ims_interfaces::srv::VendingMachine>::SharedFuture result){
+//     RCLCPP_INFO(node_->get_logger(), "Response received");
+//     auto response = result.get();
+//     if (response->success){
+//         RCLCPP_INFO(node_->get_logger(), "Vending Machine Actuation successful");
+//         finished = true;
+//         successful = true;
+//         return;
+//     }
+//     else{
+//         RCLCPP_ERROR(node_->get_logger(), "Failed to dispense items from vending machine");
+//         finished = true;
+//         successful = false;
+//     }
+// }

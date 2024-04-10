@@ -3,73 +3,28 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <SetBlackboard output_key="arm_goal" value="3.15,1.41,1.0"/>
-            <SetBlackboard output_key="nav_goal" value="3.01,0.67"/>
+            <!-- <SetBlackboard output_key="arm_goal" value="1.200230,-0.437136,0.960016"/> -->
+            <!-- <SetBlackboard output_key="nav_goal" value="3.01,0.67"/> -->
             <SetBlackboard output_key="yaw" value="1"/>
-            <!-- <Action ID="waitUntilActivate" id="{id}"/>
-            <Action ID="getItemInfo" arm_goal="{arm_goal}" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/> -->
-            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <Action ID="waitUntilActivate" id="{id}"/>
+            <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
+            <Action ID= "GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            
+            <SetBlackboard output_key="vending_machine_id" value="2"/>
+            <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
             <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
 
-            <SetBlackboard output_key="arm_goal" value="3.31,0.87,0.64"/>
+            <!-- <SetBlackboard output_key="arm_goal" value="0.5,0.5,0.8"/> -->
+
+
+            <!-- <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/> -->
+
+            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
+            <Action ID="waitUntilActivate" id="0"/>
             <SetBlackboard output_key="nav_goal" value="6.47,-3.7"/>
             <SetBlackboard output_key="yaw" value="0"/>
-            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
             <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
-            <!-- <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/> -->
+
         </Sequence>
     </BehaviorTree>
-    <!-- ////////// -->
-    <TreeNodesModel>
-        <Action ID="waitUntilActivate">
-            <output_port name="id"/>
-        </Action>
-        <Action ID="DockAndCharge"/>
-        <Action ID="GoToPose">
-            <input_port default="0,0,0" name="nav_goal"/>
-            <input_port default="0" name="yaw"/>
-        </Action>
-
-        <Action ID="MoveArm_Wrapper">
-            <input_port name="arm_goal"/>
-        </Action>
-        <Action ID="getItemInfo">
-            <output_port name="arm_goal"/>
-            <input_port name="id"/>
-            <output_port name="item_name"/>
-            <output_port name="nav_goal"/>
-            <output_port name="quantity"/>
-            <output_port name="vending_machine_id"/>
-            <output_port name="yaw"/>
-        </Action>
-        <Action ID="graspObject">
-            <input_port name="itemInfo"/>
-        </Action>
-        <Condition ID="isAtPose">
-            <input_port name="loc"/>
-        </Condition>
-        <Condition ID="isBatteryOK"/>
-        <Condition ID="isGoalAvailable">
-            <output_port name="goalName"/>
-        </Condition>
-        <Condition ID="isGrabbed"/>
-        <Condition ID="isVoiceOver"/>
-        <Condition ID="noOveride"/>
-        <Action ID="vendingMachineActuate">
-            <input_port default="1" name="quantity_dispense"/>
-            <input_port name="vending_machine_id"/>
-        </Action>
-        <Action ID="vendingMachineActuate">
-            <input_port default="1" name="quantity_dispense"/>
-            <input_port name="vending_machine_id"/>
-        </Action>
-        <Action ID="voiceOverInfo">
-            <input_port name="itemInfo"/>
-        </Action>
-        <Action ID="waitForCommand">
-            <output_port name="goalName"/>
-            <output_port default="Inquire" name="goalType"/>
-        </Action>
-    </TreeNodesModel>
-    <!-- ////////// -->
 </root>

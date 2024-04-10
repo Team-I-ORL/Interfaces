@@ -32,15 +32,24 @@ BT::NodeStatus MoveArm_Wrapper::onStart()
     double y = goalVec[1];
     double z = goalVec[2];
 
-    auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
-    geometry_msgs::msg::PoseStamped target_map;
-    // geometry_msgs::msg::PoseStamped targetPose;
-    target_map.header.frame_id = "map";
-    target_map.pose.position.x = x;
-    target_map.pose.position.y = y;
-    target_map.pose.position.z = z;
-    target_map.pose.orientation.w = 1.0;
+    // Find transform from base_link to map
+    // tfBuffer.transform(base_link_pose_stamped, "map");
+    
+    // Transform the pose stamped which in base_link frame to map frame
 
+    auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
+    geometry_msgs::msg::PoseStamped target_base_link;
+    // geometry_msgs::msg::PoseStamped targetPose;
+    target_base_link.header.frame_id = "base_link";
+    target_base_link.pose.position.x = x;
+    target_base_link.pose.position.y = y;
+    target_base_link.pose.position.z = z;
+    target_base_link.pose.orientation.w = 1.0;
+    RCLCPP_INFO(node_->get_logger(), "Position BL: x: %f, y: %f, z: %f", target_base_link.pose.position.x, target_base_link.pose.position.y, target_base_link.pose.position.z);
+
+    // Wait for transform to be available
+    
+    auto target_map = tfBuffer.transform(target_base_link, "map", tf2::durationFromSec(2.0));
     // if (!tfBuffer.canTransform("map", "base_link", tf2::TimePointZero)) {
     //     RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
     //     return BT::NodeStatus::FAILURE;

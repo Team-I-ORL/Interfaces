@@ -16,7 +16,7 @@ BT::PortsList GetItemInfo::providedPorts()
     return {
         BT::InputPort<std::string>("id"),
         BT::OutputPort<std::string>("item_name"),
-        BT::OutputPort<std::string>("arm_goal"),
+        // BT::OutputPort<std::string>("arm_goal"),
         BT::OutputPort<std::string>("nav_goal"),
         BT::OutputPort<std::string>("yaw"),
         BT::OutputPort<std::string>("quantity"),
@@ -65,24 +65,25 @@ void GetItemInfo::result_callback(rclcpp::Client<ims_interfaces::srv::Item>::Sha
     
     setOutput("item_name", response->name.data);
     RCLCPP_INFO(node_->get_logger(), "Item name: %s", response->name.data.c_str());
-    auto arm_goal = response->location;
-    arm_goal.x = arm_goal.x + 0.1;
-    arm_goal.y = arm_goal.y;
-    arm_goal.z = 0.0;
-    setOutput("arm_goal", bt_string_serialize::geoMsgPtToString(arm_goal));
+    // auto arm_goal = response->location;
+    // arm_goal.x = arm_goal.x + 0.1;
+    // arm_goal.y = arm_goal.y;
+    // arm_goal.z = 0.0;
+    // setOutput("arm_goal", bt_string_serialize::geoMsgPtToString(arm_goal));
     auto nav_goal = response->location;
     // RCLCPP_INFO(node_->get_logger(), "Arm goal: x=%f, y=%f, z=%f", arm_goal.x, arm_goal.y, arm_goal.z);
+    // nav_goal.x = nav_goal.x + 0.5;
     nav_goal.x = nav_goal.x + 0.5;
     nav_goal.y = nav_goal.y;
     nav_goal.z = 0.0;
-    // RCLCPP_INFO(node_->get_logger(), "Nav goal: x=%f, y=%f", nav_goal.x, nav_goal.y);
+    RCLCPP_INFO(node_->get_logger(), "Nav goal: x=%f, y=%f", nav_goal.x, nav_goal.y);
     setOutput("nav_goal", bt_string_serialize::geoMsgPtToString(nav_goal));
     setOutput("yaw", bt_string_serialize::intToString(response->yaw));
-    // RCLCPP_INFO(node_->get_logger(), "Yaw: %lu", response->yaw);
+    RCLCPP_INFO(node_->get_logger(), "Yaw: %lu", response->yaw);
     setOutput("quantity", bt_string_serialize::intToString(response->quantity));
-    // RCLCPP_INFO(node_->get_logger(), "Quantity: %i", response->quantity);
+    RCLCPP_INFO(node_->get_logger(), "Quantity: %i", response->quantity);
     setOutput("vending_machine_id", bt_string_serialize::intToString(response->vending_machine_id));
-    // RCLCPP_INFO(node_->get_logger(), "Vending machine id: %i", response->vending_machine_id);
+    RCLCPP_INFO(node_->get_logger(), "Vending machine id: %i", response->vending_machine_id);
 
     this->finished = true;
 }

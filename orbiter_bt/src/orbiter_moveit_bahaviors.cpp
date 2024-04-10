@@ -81,6 +81,24 @@ BT::NodeStatus MoveArm::onStart()
     double y = goalVec[1];
     double z = goalVec[2];
 
+    // Adding orientation constraints
+    moveit_msgs::msg::OrientationConstraint ocm;
+    ocm.link_name = "grippper_link";
+    ocm.header.frame_id = "map";
+    ocm.orientation.x = 0.000;
+    ocm.orientation.y = 0.707;
+    ocm.orientation.z = 0.000;
+    ocm.orientation.w = 0.707;
+    ocm.absolute_x_axis_tolerance = 0.1;
+    ocm.absolute_y_axis_tolerance = 0.1;
+    ocm.absolute_z_axis_tolerance = 0.1;
+    ocm.weight = 1.0;
+
+    moveit_msgs::msg::Constraints test_constraints;
+    test_constraints.orientation_constraints.push_back(ocm);
+    move_group_interface.setPathConstraints(test_constraints);
+
+
     geometry_msgs::msg::PoseStamped target_map;
     target_map.header.frame_id = "map";  // Set the frame ID
     target_map.pose.position.x = x;          // Set desired X position

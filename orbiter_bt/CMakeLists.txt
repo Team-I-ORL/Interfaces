@@ -18,8 +18,8 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(ims_interfaces REQUIRED)
-
 find_package(geometry_msgs REQUIRED)
+find_package(ros2_aruco_interfaces REQUIRED) 
 
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(urdf REQUIRED)
@@ -48,6 +48,7 @@ src/orbiter_moveit_bahaviors.cpp
 src/orbiter_vendingMachineActuate.cpp
 src/orbiter_moveit_bahaviors_wrapper.cpp
 src/orbiter_waitUntilActivate.cpp
+src/orbiter_getVendingLoc.cpp
 )
 
 set(TARGET_DEPENDS
@@ -60,6 +61,7 @@ set(TARGET_DEPENDS
     ims_interfaces
     urdf
     visualization_msgs
+    ros2_aruco_interfaces
     nav2_msgs
     tf2
     tf2_geometry_msgs

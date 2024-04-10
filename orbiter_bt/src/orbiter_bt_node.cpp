@@ -40,12 +40,12 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
     
-    RCLCPP_INFO(get_logger(), "MoveArm creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<MoveArm>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<MoveArm>("MoveArm", builder);
+    // RCLCPP_INFO(get_logger(), "MoveArm creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<MoveArm>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<MoveArm>("MoveArm", builder);
 
     RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
     builder = 
@@ -67,6 +67,13 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<wait_until_activate>(name, config, shared_from_this());
     };
     factory.registerBuilder<wait_until_activate>("waitUntilActivate", builder);
+
+    RCLCPP_INFO(get_logger(), "arucoArmPose creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<arucoArmPose>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<arucoArmPose>("arucoArmPose", builder);
     
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     std::cout << "Behavior tree created" << std::endl;
