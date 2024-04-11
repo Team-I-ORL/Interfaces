@@ -74,7 +74,21 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<arucoArmPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<arucoArmPose>("arucoArmPose", builder);
-    
+
+    RCLCPP_INFO(get_logger(), "checkArmGoal creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<checkArmGoal>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<checkArmGoal>("armGoalIsEmpty", builder);
+
+    RCLCPP_INFO(get_logger(), "clearInputs creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<clearInputs>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<clearInputs>("clearInputs", builder);
+
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     std::cout << "Behavior tree created" << std::endl;
 }
