@@ -37,14 +37,50 @@ To use the ros1_bridge to network ROS1 and ROS2, the follow the steps below.
    Parameter bridge to bridge only selected topics and services:
    Load yaml file with mentioned topics and services to rosparam on ros1
    ```
-   ### following commands are to be run on the beast######
+   ### following commands are to be run on the fetch ######
    cd ros-humble/config
    rosparam load bridge.yaml
    ```
    To run the bridge with the updated params run the following from the ros2 docker 
    ```
    ros2 run ros1_bridge parameter_bridge
-   ```  
+   ```
+
+   to add topics and services to bridge update bridge.yaml on the fetch in ~/ros-humble/config/ 
+   ```
+   topics:
+  -
+    topic: /odom  # Topic name on both ROS 1 and ROS 2
+    type: nav_msgs/msg/Odometry # Type of topic to bridge - add ros2 msg type and not ros1
+    queue_size: 1  # Queue size
+    # qos is optional remove if not needed for the topic
+    qos:
+      history: keep_last  # OR keep_all, then you can omit `depth` parameter below
+      depth: 10  # Only required when history == keep_last
+      reliability: reliable  # OR best_effort
+      durability: transient_local  # OR volatile
+      deadline:
+          secs: 10
+          nsecs: 2345
+      lifespan:
+          secs: 20
+          nsecs: 3456
+      liveliness: liveliness_system_default  # Values from https://design.ros2.org/articles/qos_deadline_liveliness_lifespan.html, eg. LIVELINESS_AUTOMATIC
+      liveliness_lease_duration:
+          secs: 40
+          nsecs: 5678
+ # to learn more about qos settings visit the following link
+ # https://docs.ros.org/en/foxy/Concepts/About-Quality-of-Service-Settings.html
+ #services_2_to_1:
+ #  -
+ #   service: /  # ROS 1 service name
+ #   type:   # The ROS 1 service type name
+ #services_1_to_2:
+ # -
+ #   service: /  # ROS 2 service name
+ #   type:  # The ROS 2 service type name
+
+   ```
 
 Now, ROS2 within the container environment should be connected to ROS1.
 
