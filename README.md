@@ -24,12 +24,27 @@ To use the ros1_bridge to network ROS1 and ROS2, the follow the steps below.
 ```
    sudo docker run -it --name ros-humble --net=host ros-humble
 ```
-4. Start ros1_bridge node in ROS2 docker
+4. Source ros and ros1_bridge workspace
 ```
    source /opt/ros/humble/setup.bash
    source ros-humble-ros1-bridge/install/local_setup.bash
-   ros2 run ros1_bridge dynamic_bridge --bridge-all-topics
 ```
+5. Start ros1_bridge node in ROS2 docker
+   Dynamic bridge to bridge all topics
+   ```
+   ros2 run ros1_bridge dynamic_bridge --bridge-all-topics
+   ```
+   Parameter bridge to bridge only selected topics and services:
+   Load yaml file with mentioned topics and services to rosparam on ros1
+   ```
+   ### following commands are to be run on the beast######
+   cd ros-humble/config
+   rosparam load bridge.yaml
+   ```
+   To run the bridge with the updated params run the following from the ros2 docker 
+   ```
+   ros2 run ros1_bridge parameter_bridge
+   ```  
 
 Now, ROS2 within the container environment should be connected to ROS1.
 
