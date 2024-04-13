@@ -22,7 +22,7 @@ To use the ros1_bridge to network ROS1 and ROS2, the follow the steps below.
 ```
 3. Run ROS2 Docker
 ```
-   sudo docker run -it --name ros-humble --net=host ros-humble
+   sudo docker run -it --name ros-humble --net=host ros-humble-volume:tf_static
 ```
 4. Source ros and ros1_bridge workspace
 ```
