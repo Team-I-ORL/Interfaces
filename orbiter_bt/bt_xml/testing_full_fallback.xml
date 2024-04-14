@@ -39,6 +39,7 @@
                     </Fallback>
                 </Sequence>
             </Fallback>
+            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
             <Action ID="GoToPose" nav_goal="6.47,-3.7" yaw="0"/>
             <Action ID="clearInputs" arm_goal="" cur_repeat="" id="" ids="" item_name="" nav_goal="" quantity="" vending_machine_id="" yaw=""/>
         </Sequence>
