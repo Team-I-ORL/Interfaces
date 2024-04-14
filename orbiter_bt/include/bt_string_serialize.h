@@ -36,6 +36,20 @@ public:
         return result;
     }
 
+    static std::vector<int> stringToVectorInt(const std::string& ss){
+        // convert string to vector
+        std::vector<int> result;
+        std::stringstream stream(ss);
+
+        for (int i; stream >> i;) {
+            result.push_back(i);
+            if (stream.peek() == ',')
+                stream.ignore();
+        }
+
+        return result;
+    }
+
     static std::string vectorToString(const std::vector<double>& vec){
         // convert vector to string
         std::string result;

@@ -12,7 +12,7 @@ wait_until_activate::wait_until_activate(const std::string &name,
 BT::PortsList wait_until_activate::providedPorts()
 {
     return {
-        BT::OutputPort<std::string>("id")
+        BT::OutputPort<std::string>("ids")
     };
 }
 
@@ -27,7 +27,7 @@ BT::NodeStatus wait_until_activate::onRunning()
     if (activate)
     {
         RCLCPP_INFO(node_->get_logger(), "Activated");
-        setOutput("id", bt_string_serialize::intToString(id));
+        setOutput("id", ids);
         return BT::NodeStatus::SUCCESS;
     }
     else
@@ -43,7 +43,7 @@ void wait_until_activate::callback(const orbiter_bt::msg::Fetch::SharedPtr msg)
     {
         RCLCPP_INFO(node_->get_logger(), "Activated");
         activate = true;
-        id = msg->inventory_id;
+        ids = msg->inventory_ids;
     }
 }
 

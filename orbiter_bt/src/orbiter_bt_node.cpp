@@ -39,13 +39,6 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GetItemInfo>(name, config, shared_from_this());
     };
     factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
-    
-    // RCLCPP_INFO(get_logger(), "MoveArm creating");
-    // builder = 
-    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
-    //     return std::make_unique<MoveArm>(name, config, shared_from_this());
-    // };
-    // factory.registerBuilder<MoveArm>("MoveArm", builder);
 
     RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
     builder = 
@@ -89,7 +82,15 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<clearInputs>("clearInputs", builder);
 
+    RCLCPP_INFO(get_logger(), "repetitionManager creating"); 
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<repetition_manager>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<repetition_manager>("repetitionManager", builder);
+
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
     std::cout << "Behavior tree created" << std::endl;
 }
 

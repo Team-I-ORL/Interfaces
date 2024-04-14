@@ -1,4 +1,5 @@
 #include "orbiter_moveit_behaviors_wrapper.h"
+
 MoveArm_Wrapper::MoveArm_Wrapper(const std::string &name,
                  const BT::NodeConfiguration &config,
                  const rclcpp::Node::SharedPtr node)
@@ -32,33 +33,60 @@ BT::NodeStatus MoveArm_Wrapper::onStart()
     double y = goalVec[1];
     double z = goalVec[2];
 
-    // Find transform from base_link to map
-    // tfBuffer.transform(base_link_pose_stamped, "map");
-    
-    // Transform the pose stamped which in base_link frame to map frame
 
     auto request = std::make_shared<orbiter_bt::srv::MoveArm::Request>();
-    geometry_msgs::msg::PoseStamped target_base_link;
-    // geometry_msgs::msg::PoseStamped targetPose;
-    target_base_link.header.frame_id = "base_link";
-    target_base_link.pose.position.x = x;
-    target_base_link.pose.position.y = y;
-    target_base_link.pose.position.z = z;
-    target_base_link.pose.orientation.w = 1.0;
-    RCLCPP_INFO(node_->get_logger(), "Position BL: x: %f, y: %f, z: %f", target_base_link.pose.position.x, target_base_link.pose.position.y, target_base_link.pose.position.z);
+    geometry_msgs::msg::PoseStamped target_base_link, target_map;
+    // Go to named pose home if goal is 0,0,0
 
-    // Wait for transform to be available
-    
-    auto target_map = tfBuffer.transform(target_base_link, "map", tf2::durationFromSec(2.0));
-    // if (!tfBuffer.canTransform("map", "base_link", tf2::TimePointZero)) {
-    //     RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
-    //     return BT::NodeStatus::FAILURE;
-    // }
+    if (x == 0.0 && y == 0.0 && z == 0.0)
+    {
+        RCLCPP_ERROR(node_->get_logger(), "Goal is 0,0,0, returning to home pose");
+        target_base_link.header.frame_id = "home";
+        request->target_pose = target_base_link;
+    }
+    else{
+        target_base_link.header.frame_id = "base_link";
+        target_base_link.pose.position.x = x;
+        target_base_link.pose.position.y = y;
+        target_base_link.pose.position.z = z;
+        target_base_link.pose.orientation.w = 1.0;
+        RCLCPP_INFO(node_->get_logger(), "Position BL: x: %f, y: %f, z: %f", target_base_link.pose.position.x, target_base_link.pose.position.y, target_base_link.pose.position.z);
 
-    // tfBuffer.transform(target_map, targetPose, "base_link");
-    request->target_pose = target_map;
+        // Wait for transform to be available
+        const std::string BASE_LINK = "base_link";
 
-    RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", target_map.pose.position.x, target_map.pose.position.y, target_map.pose.position.z);
+        // if (!tfBuffer.canTransform("map", BASE_LINK, tf2::TimePointZero)) {
+        //     RCLCPP_ERROR(node_->get_logger(), "Transform not available !!!");
+        //     return BT::NodeStatus::FAILURE;
+        // }
+
+        // Wait for transform
+        while (rclcpp::ok()) {
+            try {
+                tfBuffer.lookupTransform("map", BASE_LINK, tf2::TimePointZero);
+                break;
+            } catch (tf2::TransformException &ex) {
+                RCLCPP_WARN(node_->get_logger(), "Waiting for [map -> %s] transform to become available", BASE_LINK);
+                rclcpp::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+
+        try {
+            tfBuffer.transform(target_base_link, target_map, "map");
+        } catch (tf2::TransformException &ex) {
+            RCLCPP_ERROR(node_->get_logger(), "Could not transform point: %s", ex.what());
+            return BT::NodeStatus::FAILURE;
+        }
+
+        //////////////////////////////////
+
+        // tfBuffer.transform(target_base_link, target_map, "map");
+        // auto target_map = tfBuffer.transform(target_base_link, "map", tf2::durationFromSec(0.0));
+
+        request->target_pose = target_map;
+        RCLCPP_INFO(node_->get_logger(), "Goal Created At: x: %f, y: %f, z: %f", target_map.pose.position.x, target_map.pose.position.y, target_map.pose.position.z);
+    }
+
     auto result = client->async_send_request(request, std::bind(&MoveArm_Wrapper::result_callback, this, std::placeholders::_1));
     return BT::NodeStatus::RUNNING;
 }

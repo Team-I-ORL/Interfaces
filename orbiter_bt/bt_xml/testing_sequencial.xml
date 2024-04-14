@@ -4,26 +4,26 @@
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
             <!-- <SetBlackboard output_key="arm_goal" value="1.200230,-0.437136,0.960016"/> -->
-            <!-- <SetBlackboard output_key="nav_goal" value="3.01,0.67"/> -->
+            <SetBlackboard output_key="nav_goal" value="3.01,0.67"/>
             <SetBlackboard output_key="yaw" value="1"/>
-            <Action ID="waitUntilActivate" id="{id}"/>
-            <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
-            <Action ID= "GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <!-- <Action ID="waitUntilActivate" id="{id}"/> -->
+            <!-- <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/> -->
+            <!-- <Action ID= "GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/> -->
             
             <SetBlackboard output_key="vending_machine_id" value="2"/>
             <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
             <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
 
-            <!-- <SetBlackboard output_key="arm_goal" value="0.5,0.5,0.8"/> -->
+            <SetBlackboard output_key="arm_goal" value="0.0,-0.1,0.3"/>
 
 
-            <!-- <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/> -->
+            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
 
-            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
-            <Action ID="waitUntilActivate" id="0"/>
-            <SetBlackboard output_key="nav_goal" value="6.47,-3.7"/>
-            <SetBlackboard output_key="yaw" value="0"/>
-            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+            <!-- <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/> -->
+            <!-- <Action ID="waitUntilActivate" id="0"/> -->
+            <!-- <SetBlackboard output_key="nav_goal" value="6.47,-3.7"/> -->
+            <!-- <SetBlackboard output_key="yaw" value="0"/> -->
+            <!-- <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/> -->
 
         </Sequence>
     </BehaviorTree>

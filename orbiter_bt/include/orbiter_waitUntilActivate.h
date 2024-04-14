@@ -3,6 +3,7 @@
 #include "bt_string_serialize.h"
 #include "std_msgs/msg/string.hpp"
 #include "orbiter_bt/msg/fetch.hpp"
+#include <string>
 
 class wait_until_activate : public BT::StatefulActionNode
 {
@@ -20,6 +21,6 @@ class wait_until_activate : public BT::StatefulActionNode
         void onHalted() override{};
     private:
         bool activate = false;
-        int id = 0;
+        std::string ids;
         void callback(const orbiter_bt::msg::Fetch::SharedPtr msg);
 };

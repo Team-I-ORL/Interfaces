@@ -10,6 +10,7 @@
 #include "orbiter_getVendingLoc.h"
 #include "orbiter_checkArmGoal.h"
 #include "orbiter_clearInputs.h"
+#include "orbiter_repetitionManager.h"
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 // #include "behaviortree_cpp/bt_factory.h"

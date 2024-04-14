@@ -37,6 +37,7 @@ BT::NodeStatus GoToPose::onStart()
     // Get goal from IMS based on location name
     std::vector<double> goal = bt_string_serialize::stringToVector(loc.value());
     int theta = bt_string_serialize::stringToInt(yaw.value());
+    theta = theta / 180 * M_PI;
     
 
     // Send goal to action server
@@ -49,7 +50,7 @@ BT::NodeStatus GoToPose::onStart()
     goal_msg.pose.pose.position.x = goal[0];
     goal_msg.pose.pose.position.y = goal[1];
     tf2::Quaternion q;
-    q.setZ(0.6);
+    q.setZ(theta);
     q.setW(1.0);
     goal_msg.pose.pose.orientation = tf2::toMsg(q);
     // RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %i", goal_msg.pose.pose.position.x, goal_msg.pose.pose.position.y, theta);

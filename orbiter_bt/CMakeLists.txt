@@ -44,11 +44,13 @@ DESTINATION share/${PROJECT_NAME}
 set(BEHAVIOR_SOURCES
 src/orbiter_nav_behaviors.cpp
 src/orbiter_getItemInfo.cpp
-src/orbiter_moveit_bahaviors.cpp
 src/orbiter_vendingMachineActuate.cpp
 src/orbiter_moveit_bahaviors_wrapper.cpp
 src/orbiter_waitUntilActivate.cpp
 src/orbiter_getVendingLoc.cpp
+src/orbiter_checkArmGoal.cpp
+src/orbiter_clearInputs.cpp
+src/orbiter_repetitionManager.cpp
 )
 
 set(TARGET_DEPENDS

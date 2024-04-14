@@ -1,2 +1,2 @@
-uint16 inventory_id
+string inventory_ids
 bool status
