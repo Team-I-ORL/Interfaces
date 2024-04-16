@@ -68,8 +68,16 @@ BT::NodeStatus GoToPose::onStart()
 BT::NodeStatus GoToPose::onRunning()
 {   
     if (nav_done_flag)
-    {
-        return BT::NodeStatus::SUCCESS;
+    {   
+        nav_done_flag = false;
+        if (nav_success_flag)
+        {
+            return BT::NodeStatus::SUCCESS;
+        }
+        else
+        {
+            return BT::NodeStatus::FAILURE;
+        }
     }
     else
     {
@@ -86,18 +94,21 @@ void GoToPose::navigate_to_pose_callback(const GoalHandleNav::WrappedResult &res
             RCLCPP_INFO(node_->get_logger(),
                         "Goal reached");
             setOutput("result", "Goal reached");
+            nav_success_flag = true;
         }
         else if (result.code == rclcpp_action::ResultCode::ABORTED)
         {
             RCLCPP_INFO(node_->get_logger(),
                         "Goal aborted");
             setOutput("result", "Goal aborted");
+            nav_success_flag = false;
         }
         else if (result.code == rclcpp_action::ResultCode::CANCELED)
         {
             RCLCPP_INFO(node_->get_logger(),
                         "Goal canceled");
             setOutput("result", "Goal canceled");
+            nav_success_flag = false;
         }
     }
 }

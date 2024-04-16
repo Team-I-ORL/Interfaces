@@ -27,7 +27,9 @@ BT::NodeStatus wait_until_activate::onRunning()
     if (activate)
     {
         RCLCPP_INFO(node_->get_logger(), "Activated");
-        setOutput("id", ids);
+        setOutput("ids", ids);
+        RCLCPP_INFO(node_->get_logger(), "IDs are: %s", ids.c_str());
+        activate = false;
         return BT::NodeStatus::SUCCESS;
     }
     else
@@ -38,12 +40,17 @@ BT::NodeStatus wait_until_activate::onRunning()
 }
 
 void wait_until_activate::callback(const orbiter_bt::msg::Fetch::SharedPtr msg)
-{
+{   
     if (msg->status == true)
     {
         RCLCPP_INFO(node_->get_logger(), "Activated");
         activate = true;
         ids = msg->inventory_ids;
+    }
+    else
+    {
+        RCLCPP_INFO(node_->get_logger(), "Not activated");
+        activate = false;
     }
 }
 
