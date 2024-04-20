@@ -3,44 +3,148 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Action ID="waitUntilActivate" ids="{ids}"/>
             <Fallback>
-                <Action ID="repetitionManager" cur_repeat="0" id="{id}" ids="{ids}"/>
-                <Sequence>
-                    <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
-                    <Fallback>
-                        <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
-                        <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
-                            <Sequence>
-                                <Action ID="GoToPose" nav_goal="6.47,-3.7" yaw="0"/>
-                                <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
-                            </Sequence>
-                        </RetryUntilSuccessful>
-                    </Fallback>
-                    <Fallback>
-                        <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
-                        <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
-                            <Sequence>
-                                <SetBlackboard output_key="yaw" value="{yaw}+5"/>
-                                <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
-                                <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
-                                <Condition ID="armGoalIsEmpty" arm_goal="{arm_goal}"/>
-                            </Sequence>
-                        </RetryUntilSuccessful>
-                    </Fallback>
-                    <Fallback>
-                        <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
-                        <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
-                            <Sequence>
-                                <Action ID="MoveArm_Wrapper" arm_goal="0.0,0.0,0.0"/>
-                                <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
-                            </Sequence>
-                        </RetryUntilSuccessful>
-                    </Fallback>
-                </Sequence>
+                <Action ID="MoveArm_Wrapper" arm_goal="0.0,0.0,0.0"/>
+                <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                    <Sequence>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                    </Sequence>
+                </RetryUntilSuccessful>
             </Fallback>
-            <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
+            <Action ID="waitUntilActivate" ids="{ids}"/>
+            <SetBlackboard output_key="cur_repeat" value="0"/>
+            <SetBlackboard output_key="num_repeats" value="1"/>
+
+            <!--  Fallback for moving arm to home position -->
+            <Fallback>
+                <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 0.0"/>
+                <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                    <Sequence>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 0.0"/>
+                    </Sequence>
+                </RetryUntilSuccessful>
+            </Fallback>
+
+            <!-- Main Contorl logic -->
+            <Repeat num_cycles="{num_repeats}">
+                <Fallback>
+                    <Action ID="repetitionManager" cur_repeat="{cur_repeat}" id="{id}" ids="{ids}" num_repeats="{num_repeats}"/>
+                    <Sequence>
+
+                        <!-- Get item info -->
+                        <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
+                        
+                        <!-- Move to the robot base to goal pose -->
+                        <Fallback>
+                            <!-- If its navigates again after collecting a id, move it outside-->
+                            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
+                                <Sequence>
+                                    <!-- Check if this is a good fallback pose -->
+                                    <Action ID="GoToPose" nav_goal="2.0,0.5" yaw="0"/>
+                                    <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback>
+
+                        <!-- Find Aruco (vending machine location) -->
+                        <Fallback>
+                            <Sequence>
+                                <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
+                                <Action ID="armGoalIsEmpty" arm_goal="{arm_goal}"/>
+                            </Sequence>
+                            <!-- Fall back only happens if aruco is not found and it returns (0,0,0)-->
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
+                                <Sequence>
+                                    <Action ID="randAng" randomize_range="15" yaw="{yaw}"/>
+                                    <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                                    <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
+                                    <Condition ID="armGoalIsEmpty" arm_goal="{arm_goal}"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback>
+
+                        <!-- Move arm to pose 2 (waypoint before obj pose) -->
+                        <Fallback>
+                            <Action ID="MoveArm_Wrapper" arm_goal="0.0,0.0,2.0"/>
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                                <Sequence>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback>
+
+                        <!-- Go to actual arm pose -->
+                        <Fallback>
+                            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                                <Sequence>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback>
+
+
+                        <!-- Verify Aruco pose and move the arm to the new compute pose -->
+                        <!-- This makes the location super precise -->
+                        <!-- If its works in the 1st try, comment this -->
+                        <!-- <Fallback>
+                            <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
+                            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                                <Sequence>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback> -->
+
+                        <!-- Actuate vending machine -->
+                        <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
+                        <Fallback>
+                            <Action ID="MoveArm_Wrapper" arm_goal="0.0,0.0,2.0"/>
+                            <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
+                                <Sequence>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                                    <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                                </Sequence>
+                            </RetryUntilSuccessful>
+                        </Fallback>
+                    </Sequence>
+                </Fallback>
+            </Repeat>
+
+            <!-- Move arm back to waypoint pose -->
+            <!-- Should go to pose 2, becuase multiple id's pose 1 doesn't makes sense-->
+            <Fallback>
+                <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                <RetryUntilSuccessful num_attempts="20">
+                    <Sequence>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 2.0"/>
+                    </Sequence>
+                </RetryUntilSuccessful>
+            </Fallback>
+
+            <!-- Move arm back to home pose -->
+            <Fallback>
+                <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 0.0"/>
+                <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="50">
+                    <Sequence>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 1.0"/>
+                        <Action ID="MoveArm_Wrapper" arm_goal="0.0, 0.0, 0.0"/>
+                    </Sequence>
+                </RetryUntilSuccessful>
+            </Fallback>
+
+
+            <!-- Make robot base go back to home -->
             <Action ID="GoToPose" nav_goal="6.47,-3.7" yaw="0"/>
+
             <Action ID="clearInputs" arm_goal="" cur_repeat="" id="" ids="" item_name="" nav_goal="" quantity="" vending_machine_id="" yaw=""/>
         </Sequence>
     </BehaviorTree>
@@ -81,10 +185,15 @@
             <output_port name="yaw"/>
         </Action>
         <Action ID="moveHead"/>
+        <Action ID="randAng">
+            <input_port default="15" name="randomize_range"/>
+            <inout_port default="{yaw}" name="yaw"/>
+        </Action>
         <Action ID="repetitionManager">
             <inout_port name="cur_repeat"/>
-            <output_port default="{id}" name="id"/>
-            <input_port default="{ids}" name="ids"/>
+            <output_port name="id"/>
+            <input_port name="ids"/>
+            <output_port name="num_repeats"/>
         </Action>
         <Action ID="vendingMachineActuate">
             <inout_port name="quantity_dispense"/>

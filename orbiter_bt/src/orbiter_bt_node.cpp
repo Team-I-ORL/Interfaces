@@ -89,8 +89,21 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<repetition_manager>("repetitionManager", builder);
 
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
+    RCLCPP_INFO(get_logger(), "randAng creating"); 
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<RandomizeYaw>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<RandomizeYaw>("randAng", builder);
+
+
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
+
+    printTreeRecursively(tree_.rootNode());
+
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
     std::cout << "Behavior tree created" << std::endl;
 }
 
@@ -120,8 +133,10 @@ int main(int argc, char *argv[])
     auto node = std::make_shared<OrbiterBTNode>("orbiter_bt_node");
 
     // std::cout << "Node pointer 1: " << node.get() << std::endl;
+    // BT::PublisherZMQ publisher_zmq(node->tree_);
 
     node->setup();
+    BT::PublisherZMQ publisher_zmq(node->tree_);
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

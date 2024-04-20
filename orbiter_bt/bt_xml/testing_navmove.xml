@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Sequence>
+                <SetBlackboard output_key="nav_goal" value="3.01,0.67"/>
+                <SetBlackboard output_key="vending_machine_id" value="2"/>
+                <SetBlackboard output_key="yaw" value="1"/>
+                <Fallback>
+                    <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                    <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
+                        <Sequence>
+                            <Action ID="GoToPose" nav_goal="6.47,-3.7" yaw="0"/>
+                            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                        </Sequence>
+                    </RetryUntilSuccessful>
+                </Fallback>
+                <Fallback>
+                    <SetBlackboard output_key="arm_goal" value="1.200230,-0.437136,0.960016"/>
+                    <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
+                        <Sequence>
+                            <SetBlackboard output_key="yaw" value="{yaw}+5"/>
+                            <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/>
+                            <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
+                            <Condition ID="armGoalIsEmpty" arm_goal="{arm_goal}"/>
+                        </Sequence>
+                    </RetryUntilSuccessful>
+                </Fallback>
+                <Fallback>
+                    <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                    <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="3">
+                        <Sequence>
+                            <Action ID="MoveArm_Wrapper" arm_goal="0.0,0.0,0.0"/>
+                            <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
+                        </Sequence>
+                    </RetryUntilSuccessful>
+                </Fallback>
+            </Sequence>
+            <Action ID="GoToPose" nav_goal="6.47,-3.7" yaw="0"/>
+            <Action ID="clearInputs" arm_goal="" cur_repeat="" id="" ids="" item_name="" nav_goal="" quantity="" vending_machine_id="" yaw=""/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="GoToPose">
+            <input_port name="nav_goal"/>
+            <input_port name="yaw"/>
+        </Action>
+        <Action ID="MoveArmHome"/>
+        <Action ID="MoveArm_Wrapper">
+            <inout_port name="arm_goal"/>
+        </Action>
+        <Condition ID="armGoalIsEmpty">
+            <input_port name="arm_goal">{arm_goal}</input_port>
+        </Condition>
+        <Action ID="arucoArmPose">
+            <output_port name="arm_goal"/>
+            <input_port name="vending_machine_id"/>
+        </Action>
+        <Action ID="clearInputs">
+            <output_port name="arm_goal"/>
+            <output_port name="cur_repeat"/>
+            <output_port name="id"/>
+            <output_port name="ids"/>
+            <output_port name="item_name"/>
+            <output_port name="nav_goal"/>
+            <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
+            <output_port name="yaw"/>
+        </Action>
+        <Action ID="getItemInfo">
+            <input_port name="id"/>
+            <output_port name="item_name"/>
+            <output_port name="nav_goal"/>
+            <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
+            <output_port name="yaw"/>
+        </Action>
+        <Action ID="moveHead"/>
+        <Action ID="repetitionManager">
+            <inout_port name="cur_repeat"/>
+            <output_port default="{id}" name="id"/>
+            <input_port default="{ids}" name="ids"/>
+        </Action>
+        <Action ID="vendingMachineActuate">
+            <inout_port name="quantity_dispense"/>
+            <inout_port name="vending_machine_id"/>
+        </Action>
+        <Action ID="waitUntilActivate">
+            <inout_port name="ids"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

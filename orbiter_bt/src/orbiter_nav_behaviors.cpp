@@ -36,7 +36,7 @@ BT::NodeStatus GoToPose::onStart()
     }
     // Get goal from IMS based on location name
     std::vector<double> goal = bt_string_serialize::stringToVector(loc.value());
-    int theta = bt_string_serialize::stringToInt(yaw.value());
+    double theta = std::stod(yaw.value());
     theta = theta / 180 * M_PI;
     
 
@@ -53,6 +53,7 @@ BT::NodeStatus GoToPose::onStart()
     q.setZ(theta);
     q.setW(1.0);
     goal_msg.pose.pose.orientation = tf2::toMsg(q);
+    RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, quaternion: %f, %f, %f, %f", goal_msg.pose.pose.position.x, goal_msg.pose.pose.position.y, goal_msg.pose.pose.orientation.x, goal_msg.pose.pose.orientation.y, goal_msg.pose.pose.orientation.z, goal_msg.pose.pose.orientation.w);
     // RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %i", goal_msg.pose.pose.position.x, goal_msg.pose.pose.position.y, theta);
     // std::cout << goal_msg << std::endl;
     if (!action_client_->wait_for_action_server(std::chrono::seconds(10))) {
@@ -75,7 +76,8 @@ BT::NodeStatus GoToPose::onRunning()
             return BT::NodeStatus::SUCCESS;
         }
         else
-        {
+        {   
+            RCLCPP_ERROR(node_->get_logger(), "Navigation failed");
             return BT::NodeStatus::FAILURE;
         }
     }

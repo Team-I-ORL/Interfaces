@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <Action ID="waitUntilActivate" ids="{ids}"/>
+            <!-- <SetBlackboard output_key="ids" value="1,2,3"/> -->
+            <SetBlackboard output_key="cur_repeat" value="0"/>
+            <SetBlackboard output_key="num_repeats" value="1"/>
+            <Repeat num_cycles="{num_repeats}">
+                <Sequence>
+                    <Fallback>
+                        <Action ID="repetitionManager" cur_repeat="{cur_repeat}" id="{id}" ids="{ids}" num_repeats="{num_repeats}"/>
+                        <Action ID="getItemInfo" id="{id}" item_name="{item_name}" nav_goal="{nav_goal}" quantity="{quantity}" vending_machine_id="{vending_machine_id}" yaw="{yaw}"/>
+                    </Fallback>
+                    <Action ID="vendingMachineActuate" quantity_dispense="1" vending_machine_id="{vending_machine_id}"/>
+                </Sequence>
+            </Repeat>
+            <Action ID="clearInputs" arm_goal="" cur_repeat="" id="" ids="" item_name="" nav_goal="" quantity="" vending_machine_id="" yaw=""/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="GoToPose">
+            <input_port name="nav_goal"/>
+            <input_port name="yaw"/>
+        </Action>
+        <Action ID="MoveArmHome"/>
+        <Action ID="MoveArm_Wrapper">
+            <inout_port name="arm_goal"/>
+        </Action>
+        <Condition ID="armGoalIsEmpty">
+            <input_port name="arm_goal">{arm_goal}</input_port>
+        </Condition>
+        <Action ID="arucoArmPose">
+            <output_port name="arm_goal"/>
+            <input_port name="vending_machine_id"/>
+        </Action>
+        <Action ID="clearInputs">
+            <output_port name="arm_goal"/>
+            <output_port name="cur_repeat"/>
+            <output_port name="id"/>
+            <output_port name="ids"/>
+            <output_port name="item_name"/>
+            <output_port name="nav_goal"/>
+            <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
+            <output_port name="yaw"/>
+        </Action>
+        <Action ID="getItemInfo">
+            <input_port name="id"/>
+            <output_port name="item_name"/>
+            <output_port name="nav_goal"/>
+            <output_port name="quantity"/>
+            <output_port name="vending_machine_id"/>
+            <output_port name="yaw"/>
+        </Action>
+        <Action ID="moveHead"/>
+        <Action ID="repetitionManager">
+            <inout_port name="cur_repeat"/>
+            <output_port name="id"/>
+            <input_port name="ids"/>
+            <output_port name="num_repeats"/>
+        </Action>
+        <Action ID="vendingMachineActuate">
+            <inout_port name="quantity_dispense"/>
+            <inout_port name="vending_machine_id"/>
+        </Action>
+        <Action ID="waitUntilActivate">
+            <inout_port name="ids"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

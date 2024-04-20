@@ -7,7 +7,7 @@ ActuateVendingMachine::ActuateVendingMachine(const std::string &name,
 {
     RCLCPP_INFO(node_->get_logger(), "ActuateVendingMachine has been created.");
     // vending_machine_client = node_->create_client<ims_interfaces::srv::VendingMachine>("vending_machine_service");
-    vending_machine_publisher = node_->create_publisher<std_msgs::msg::String>("ping/primitive", 10);
+    vending_machine_publisher = node_->create_publisher<std_msgs::msg::String>("ping/primitive", 1);
 }
 
 BT::PortsList ActuateVendingMachine::providedPorts()
@@ -29,7 +29,7 @@ BT::NodeStatus ActuateVendingMachine::onStart() {
     int quantity_requested = bt_string_serialize::stringToInt(getInput<std::string>("quantity_dispense").value());
 
     auto message = std_msgs::msg::String();
-    int action = 1; int requestor = 69;
+    int action = 1; int requestor = 1;
     std::string dat = "<" + std::to_string(vendor_id) + ":" + std::to_string(action) + ":" + std::to_string(requestor) + ">";
     message.data = dat;
     vending_machine_publisher->publish(message);

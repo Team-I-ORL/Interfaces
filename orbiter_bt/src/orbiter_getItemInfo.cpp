@@ -73,7 +73,7 @@ void GetItemInfo::result_callback(rclcpp::Client<ims_interfaces::srv::Item>::Sha
     auto nav_goal = response->location;
     // RCLCPP_INFO(node_->get_logger(), "Arm goal: x=%f, y=%f, z=%f", arm_goal.x, arm_goal.y, arm_goal.z);
     // nav_goal.x = nav_goal.x + 0.5;
-    nav_goal.x = nav_goal.x + 0.5;
+    nav_goal.x = nav_goal.x;
     nav_goal.y = nav_goal.y;
     nav_goal.z = 0.0;
     RCLCPP_INFO(node_->get_logger(), "Nav goal: x=%f, y=%f", nav_goal.x, nav_goal.y);

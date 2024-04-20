@@ -51,6 +51,7 @@ src/orbiter_getVendingLoc.cpp
 src/orbiter_checkArmGoal.cpp
 src/orbiter_clearInputs.cpp
 src/orbiter_repetitionManager.cpp
+src/orbiter_nav_yaw_rand.cpp
 )
 
 set(TARGET_DEPENDS
