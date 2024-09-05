@@ -1,0 +1,57 @@
+topics:
+  # camera topics to bridge below this
+#  -
+#    topic: /head_camera/rgb/image_raw
+#    type: sensor_msgs/msg/Image
+#    queue_size: 1
+  -
+    topic: /head_camera/rgb/camera_info
+    type: sensor_msgs/msg/CameraInfo
+    queue_size: 1
+  # Nav topics to bridge below this
+  -
+    topic: /odom  # Topic name on both ROS 1 and ROS 2
+    type: nav_msgs/msg/Odometry # Type of topic to bridge - add ros2 msg type and not ros1
+    queue_size: 10  # Queue size
+  -
+    topic: /cmd_vel
+    type: geometry_msgs/msg/Twist
+    queue_size: 10
+  -
+    topic: /base_scan
+    type: sensor_msgs/msg/LaserScan
+    queue_size: 10
+  -
+    topic: /tf
+    type: tf2_msgs/msg/TFMessage
+    queue_size: 1
+    qos:
+     history: keep_all
+     durability: transient_local
+  -
+    topic: /tf_static
+    type: tf2_msgs/msg/TFMessage
+    queue_size: 1
+    qos:
+     history: keep_all
+     durability: transient_local 
+  # moveit topics below this
+  -
+    topic: /joint_states
+    type: sensor_msgs/msg/JointState
+    queue_size: 10
+  # other topics below this
+  -  
+    topic: /isaac_joint_commands
+    type: sensor_msgs/msg/JointState
+    queue_size: 10
+    # to learn more about qos settings visit the following link
+ # https://docs.ros.org/en/foxy/Concepts/About-Quality-of-Service-Settings.html
+ #services_2_to_1:
+ #  -
+ #   service: /  # ROS 1 service name
+ #   type:   # The ROS 1 service type name
+ #services_1_to_2:
+ # -
+ #   service: /  # ROS 2 service name
+ #   type:  # The ROS 2 service type name
