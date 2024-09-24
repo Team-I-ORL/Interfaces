@@ -1,0 +1,26 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/jinkai/Documents/ORL/install/tb3_sim/lib/python3.10/site-packages",
+        "/home/jinkai/Documents/ORL/install/orbiter_bt/local/lib/python3.10/dist-packages",
+        "/home/jinkai/Documents/ORL/install/openai_ros2/lib/python3.10/site-packages",
+        "/home/jinkai/Documents/ORL/install/perception_interfaces/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_task_constructor_msgs/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_py/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_msgs/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_configs_utils/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/jinkai/Documents/ORL/install/tb3_sim/lib/python3.10/site-packages",
+        "/home/jinkai/Documents/ORL/install/orbiter_bt/local/lib/python3.10/dist-packages",
+        "/home/jinkai/Documents/ORL/install/openai_ros2/lib/python3.10/site-packages",
+        "/home/jinkai/Documents/ORL/install/perception_interfaces/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_task_constructor_msgs/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_py/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_msgs/local/lib/python3.10/dist-packages",
+        "/home/jinkai/ws_moveit/install/moveit_configs_utils/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

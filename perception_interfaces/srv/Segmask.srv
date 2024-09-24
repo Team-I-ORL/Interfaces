@@ -1,0 +1,5 @@
+std_msgs/String object_of_interest
+sensor_msgs/Image color_image
+sensor_msgs/CameraInfo camera_info
+---
+sensor_msgs/Image segmask
