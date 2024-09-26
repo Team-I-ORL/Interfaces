@@ -98,8 +98,8 @@ void OrbiterBTNode::creatBT()
 
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
-    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
 
     printTreeRecursively(tree_.rootNode());
 

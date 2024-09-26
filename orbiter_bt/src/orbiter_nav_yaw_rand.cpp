@@ -20,11 +20,17 @@ BT::NodeStatus RandomizeYaw::tick()
     std::random_device rd;
     std::mt19937 gen(rd());
     int range = bt_string_serialize::stringToInt(getInput<std::string>("randomize_range").value());
-    std::uniform_real_distribution<> dis(-range, range);
+    std::uniform_real_distribution<> dis(0, range);
     int yaw_offset = dis(gen);
+    if (leftAlready)
+    {
+        yaw_offset = -yaw_offset;
+        leftAlready = false;
+    }
     int yaw = bt_string_serialize::stringToInt(getInput<std::string>("yaw").value());
     yaw += yaw_offset;
     setOutput("yaw", std::to_string(yaw));
     RCLCPP_INFO(node_->get_logger(), "Randomized yaw: %d", yaw);
+    leftAlready = true;
     return BT::NodeStatus::SUCCESS;
 }

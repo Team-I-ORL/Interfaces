@@ -10,13 +10,14 @@ BT::PortsList checkArmGoal::providedPorts(){
 BT::NodeStatus checkArmGoal::tick(){
     RCLCPP_INFO(node_->get_logger(), "Checking arm goal.");
     BT::Optional<std::string> arm_goal = getInput<std::string>("arm_goal");
+    RCLCPP_INFO(node_->get_logger(), "ARM GOAL RECEIVED: %s", arm_goal.value().c_str());
     if (!arm_goal){
         RCLCPP_WARN(node_->get_logger(), "Missing required input [arm_goal]");
         return BT::NodeStatus::FAILURE;
     }
 
     auto arm_goal_vector = bt_string_serialize::stringToVector(arm_goal.value());
-    if (arm_goal_vector == std::vector<double>{0.0, 0.0, 0.0}){
+    if (arm_goal_vector[0] == 0.0 && arm_goal_vector[1] == 0.0 && arm_goal_vector[2] == 0.0){
         RCLCPP_INFO(node_->get_logger(), "No arm goal detected !!");
         return BT::NodeStatus::FAILURE;
     }

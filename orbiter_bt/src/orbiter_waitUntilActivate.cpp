@@ -34,7 +34,7 @@ BT::NodeStatus wait_until_activate::onRunning()
     }
     else
     {   
-        RCLCPP_INFO(node_->get_logger(), "Waiting for activation");
+        // RCLCPP_INFO(node_->get_logger(), "Waiting for activation");
         return BT::NodeStatus::RUNNING;
     }
 }

@@ -19,7 +19,7 @@ BT::PortsList repetition_manager::providedPorts()
 BT::NodeStatus repetition_manager::tick()
 {
     RCLCPP_INFO(node_->get_logger(), "Repetition manager tick");
-    // RCLCPP_INFO(node_->get_logger(), "IDs are: %s", getInput<std::string>("ids").value().c_str());
+    RCLCPP_INFO(node_->get_logger(), "IDs are: %s", getInput<std::string>("ids").value().c_str());
     std::vector<int> ids = bt_string_serialize::stringToVectorInt(getInput<std::string>("ids").value());
     int num_repeat = ids.size();
     setOutput("num_repeats",num_repeat);

@@ -9,4 +9,5 @@ class RandomizeYaw : public BT::SyncActionNode{
     rclcpp::Node::SharedPtr node_;
     static BT::PortsList providedPorts();
     BT::NodeStatus tick() override;
+    bool leftAlready = false;
 };

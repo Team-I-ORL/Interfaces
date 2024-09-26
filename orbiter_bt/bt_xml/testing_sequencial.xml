@@ -11,8 +11,8 @@
             <Action ID= "GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/> -->
 
 
-            <SetBlackboard output_key="vending_machine_id" value="1"/>
-            <SetBlackboard output_key="arm_goal" value="0.0, 0.0, 2.0"/>
+            <SetBlackboard output_key="vending_machine_id" value="3"/>
+            <SetBlackboard output_key="arm_goal" value="0.0, 0.0, 1.0"/>
 
             <!-- <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/> -->
             <Fallback>
@@ -27,6 +27,7 @@
 
             <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
 
+            <!-- <SetBlackboard output_key="arm_goal" value="0.0, 0.0, 2.0"/> -->
             <!-- <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/> -->
             <Fallback>
                 <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
@@ -40,8 +41,8 @@
             
             
             <SetBlackboard output_key="vending_machine_id" value="2"/>
-            <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
-
+            <!-- <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/> -->
+            <SetBlackboard output_key="arm_goal" value="0.0, 0.0, 1.0"/>
             <Fallback>
                 <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
                 <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="20">
@@ -68,7 +69,7 @@
             </Fallback>
 
             <!-- Second Item -->
-            <SetBlackboard output_key="vending_machine_id" value="3"/>
+            <!-- <SetBlackboard output_key="vending_machine_id" value="3"/>
             <Action ID="arucoArmPose" arm_goal="{arm_goal}" vending_machine_id="{vending_machine_id}"/>
 
             <Fallback>
@@ -95,9 +96,9 @@
                 </RetryUntilSuccessful>
             </Fallback>
 
-            <SetBlackboard output_key="arm_goal" value="0.0,0.0,0.0"/>
+            <SetBlackboard output_key="arm_goal" value="0.0,0.0,0.0"/> -->
             <!-- <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/> -->
-            <Fallback>
+            <!-- <Fallback>
                 <Action ID="MoveArm_Wrapper" arm_goal="{arm_goal}"/>
                 <RetryUntilSuccessful name="Retry0UntilSuccessful" num_attempts="10">
                     <Sequence>
@@ -109,9 +110,9 @@
             
 
             <SetBlackboard output_key="nav_goal" value="6.47,-3.7"/>
-            <SetBlackboard output_key="yaw" value="0"/>
+            <SetBlackboard output_key="yaw" value="0"/> -->
             <!-- <Action ID="GoToPose" nav_goal="{nav_goal}" yaw="{yaw}"/> -->
-            <Action ID="waitUntilActivate" ids="0"/>
+            <!-- <Action ID="waitUntilActivate" ids="0"/> -->
 
         </Sequence>
     </BehaviorTree>
