@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -27,10 +28,42 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(orbiter_bt REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Segmask.srv"
   "srv/Sucpose.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs# Add packages that above messages depend on, in this case std_msgs for msg/Item.msg and srv/Item.srv
 )
+
+set(TARGET_DEPENDS
+    rclcpp
+    std_msgs
+    sensor_msgs
+    geometry_msgs
+    orbiter_bt
+    tf2
+    tf2_geometry_msgs
+)
+
+include_directories(
+  include
+)
+
+add_executable(perception_manager src/perception_manager.cpp)
+ament_target_dependencies(perception_manager ${TARGET_DEPENDS})
+target_link_libraries(perception_manager
+    ${tf2_LIBRARIES}
+    ${tf2_ros_LIBRARIES})
+
+install(TARGETS
+    perception_manager
+  DESTINATION lib/${PROJECT_NAME})
+rosidl_get_typesupport_target(cpp_typesupport_target
+  ${PROJECT_NAME} rosidl_typesupport_cpp)
+
+target_link_libraries(perception_manager "${cpp_typesupport_target}")
 
 ament_package()

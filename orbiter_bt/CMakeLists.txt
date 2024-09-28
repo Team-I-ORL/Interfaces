@@ -19,6 +19,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(ims_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(ros2_aruco_interfaces REQUIRED) 
 
 find_package(moveit_ros_planning_interface REQUIRED)
@@ -32,7 +33,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Fetch.msg"
   "srv/Ims.srv"
   "srv/MoveArm.srv"
-  DEPENDENCIES std_msgs geometry_msgs
+  "srv/GetSucPose.srv"
+  DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
 # Install directories
@@ -67,6 +69,7 @@ set(TARGET_DEPENDS
     ros2_aruco_interfaces
     nav2_msgs
     tf2
+    tf2_ros
     tf2_geometry_msgs
 )
 
