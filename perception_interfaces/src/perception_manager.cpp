@@ -7,10 +7,10 @@ PerceptionManager::PerceptionManager() :
     tf_broadcaster(this)
 {
     // Declare parameters
-    this->declare_parameter<std::string>("base_link_name", "base_link");
-    this->declare_parameter<std::string>("camera_link_name", "camera_link");
-    this->declare_parameter<std::string>("segmask_service_name", "segmask");
-    this->declare_parameter<std::string>("sucpose_service_name", "sucpose");
+    this->declare_parameter<std::string>("base_link_name", "/base_link");
+    this->declare_parameter<std::string>("camera_link_name", "/head_camera_rgb_optical_frame");
+    this->declare_parameter<std::string>("segmask_service_name", "/dummy_segment");
+    this->declare_parameter<std::string>("sucpose_service_name", "/sucpose_service");
 
     // Retrieve parameter values
     this->get_parameter("base_link_name", base_link_name);
