@@ -14,6 +14,7 @@ class PerceptionManager : public rclcpp::Node
         rclcpp::Service<orbiter_bt::srv::GetSucPose>::SharedPtr _get_suc_pose_service;
         rclcpp::Client<perception_interfaces::srv::Segmask>::SharedPtr _segmask_client;
         rclcpp::Client<perception_interfaces::srv::Sucpose>::SharedPtr _sucpose_client;
+        rclcpp::CallbackGroup::SharedPtr _client_callback_group;
         
         tf2_ros::Buffer tfBuffer;
         tf2_ros::TransformListener tf_listener;
@@ -23,6 +24,23 @@ class PerceptionManager : public rclcpp::Node
         std::string camera_link_name;
         std::string segmask_service_name;
         std::string sucpose_service_name;
+
+        void _seg_mask_callback(rclcpp::Client<perception_interfaces::srv::Segmask>::SharedFuture response){
+            RCLCPP_INFO(this->get_logger(), "Segmentation mask service received");
+            _segmask = response.get()->segmask;
+            _segmask_received = true;
+        }
+        
+        void _suc_pose_callback(rclcpp::Client<perception_interfaces::srv::Sucpose>::SharedFuture response){
+            RCLCPP_INFO(this->get_logger(), "Suction pose service received");
+            _sucpose = response.get()->pose;
+            _sucpose_received = true;
+        }
+
+        sensor_msgs::msg::Image _segmask;
+        bool _segmask_received = false;
+        geometry_msgs::msg::Pose _sucpose;
+        bool _sucpose_received = false;
         
         void _get_suc_pose(const std::shared_ptr<orbiter_bt::srv::GetSucPose::Request> request,
                            std::shared_ptr<orbiter_bt::srv::GetSucPose::Response> response);

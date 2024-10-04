@@ -1,7 +1,7 @@
 #include "perception_client.h"
 
 PerceptionClient::PerceptionClient() : 
-    Node("perception_manager")
+    Node("perception_client")
 {
     _get_suc_pose_client = this->create_client<orbiter_bt::srv::GetSucPose>("get_suc_pose");
     _rgb_subscription = this->create_subscription<sensor_msgs::msg::Image>(
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
     auto node = std::make_shared<PerceptionClient>();
     node->send_request();
-    rclcpp::spin(node);
+    // rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
 }
