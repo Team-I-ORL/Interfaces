@@ -34,6 +34,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Ims.srv"
   "srv/MoveArm.srv"
   "srv/GetSucPose.srv"
+  "srv/Suck.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 

@@ -27,12 +27,14 @@ PerceptionManager::PerceptionManager() :
 
     // Create subscriptions
     _subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    _color_image_sub = this->create_subscription<sensor_msgs::msg::Image>("/head_camera/rgb/image_raw", 5,
-        std::bind(&PerceptionManager::_color_image_callback, this, std::placeholders::_1), _subscription_callback_group);
+    rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>> sub_options;
+    sub_options.callback_group = _subscription_callback_group;
+    _color_image_sub = this->create_subscription<sensor_msgs::msg::Image>("/head_camera/rgb/image_raw", 5, 
+        std::bind(&PerceptionManager::_color_image_callback, this, std::placeholders::_1), sub_options);
     _depth_image_sub = this->create_subscription<sensor_msgs::msg::Image>("/head_camera/depth/image_rect_raw", 5,
-        std::bind(&PerceptionManager::_depth_image_callback, this, std::placeholders::_1), _subscription_callback_group);
+        std::bind(&PerceptionManager::_depth_image_callback, this, std::placeholders::_1), sub_options);
     _camera_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>("/head_camera/camera_info", 5,
-        std::bind(&PerceptionManager::_camera_info_callback, this, std::placeholders::_1), _subscription_callback_group);
+        std::bind(&PerceptionManager::_camera_info_callback, this, std::placeholders::_1), sub_options);
     
     // Create service
     _get_suc_pose_service = this->create_service<orbiter_bt::srv::GetSucPose>("get_suc_pose",
