@@ -53,9 +53,9 @@ include_directories(
 )
 
 add_executable(perception_manager src/perception_manager.cpp)
-add_executable(perception_client src/perception_client.cpp)
+# add_executable(perception_client src/perception_client.cpp)
 ament_target_dependencies(perception_manager ${TARGET_DEPENDS})
-ament_target_dependencies(perception_client ${TARGET_DEPENDS})
+# ament_target_dependencies(perception_client ${TARGET_DEPENDS})
 target_link_libraries(perception_manager
     ${tf2_LIBRARIES}
     ${tf2_ros_LIBRARIES})
@@ -63,13 +63,13 @@ target_link_libraries(perception_manager
 install(TARGETS
     perception_manager
   DESTINATION lib/${PROJECT_NAME})
-install(TARGETS
-    perception_client
-  DESTINATION lib/${PROJECT_NAME})
+# install(TARGETS
+#     perception_client
+#   DESTINATION lib/${PROJECT_NAME})
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} rosidl_typesupport_cpp)
 
 target_link_libraries(perception_manager "${cpp_typesupport_target}")
-target_link_libraries(perception_client "${cpp_typesupport_target}")
+# target_link_libraries(perception_client "${cpp_typesupport_target}")
 
 ament_package()
