@@ -9,7 +9,7 @@ PerceptionManager::PerceptionManager() :
     // Declare parameters
     this->declare_parameter<std::string>("base_link_name", "/base_link");
     this->declare_parameter<std::string>("camera_link_name", "/head_camera_rgb_optical_frame");
-    this->declare_parameter<std::string>("segmask_service_name", "/dummy_segment_srv");
+    this->declare_parameter<std::string>("segmask_service_name", "/seg_mask");
     this->declare_parameter<std::string>("sucpose_service_name", "/sucpose_service");
 
     // Retrieve parameter values
