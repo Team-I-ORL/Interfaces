@@ -40,12 +40,12 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
 
-    RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<MoveArm_Wrapper>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<MoveArm_Wrapper>("MoveArm_Wrapper", builder);
+    // RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<MoveArm_Wrapper>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<MoveArm_Wrapper>("MoveArm_Wrapper", builder);
    
     RCLCPP_INFO(get_logger(), "vendingMachine creating");
     builder = 
