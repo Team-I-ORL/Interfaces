@@ -19,6 +19,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(ims_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(ros2_aruco_interfaces REQUIRED) 
 
@@ -55,6 +56,8 @@ src/orbiter_checkArmGoal.cpp
 src/orbiter_clearInputs.cpp
 src/orbiter_repetitionManager.cpp
 src/orbiter_nav_yaw_rand.cpp
+src/orbiter_moveArmCuRobo.cpp
+src/orbiter_getSucPose.cpp
 )
 
 set(TARGET_DEPENDS
@@ -64,6 +67,8 @@ set(TARGET_DEPENDS
     rclcpp_action
     # moveit_msgs
     # moveit_ros_planning_interface
+    geometry_msgs
+    std_msgs
     ims_interfaces
     urdf
     visualization_msgs

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 class bt_string_serialize
 {
 public:
@@ -68,6 +69,54 @@ public:
         result += std::to_string(pt.x) + ",";
         result += std::to_string(pt.y) + ",";
         result += std::to_string(pt.z);
+        return result;
+    }
+
+    static std::string poseToString(const geometry_msgs::msg::Pose& pose){
+        // convert geometry_msgs::msg::Pose to string
+        std::string result;
+        result += std::to_string(pose.position.x) + ",";
+        result += std::to_string(pose.position.y) + ",";
+        result += std::to_string(pose.position.z) + ",";
+        result += std::to_string(pose.orientation.x) + ",";
+        result += std::to_string(pose.orientation.y) + ",";
+        result += std::to_string(pose.orientation.z) + ",";
+        result += std::to_string(pose.orientation.w);
+        return result;
+    }
+
+    static geometry_msgs::msg::Pose stringToPose(const std::string& ss){
+        // convert string to geometry_msgs::msg::Pose
+        geometry_msgs::msg::Pose result;
+        std::stringstream stream(ss);
+        std::string item;
+
+        for (int i = 0; std::getline(stream, item, ','); i++){
+            switch (i){
+                case 0:
+                    result.position.x = std::stod(item);
+                    break;
+                case 1:
+                    result.position.y = std::stod(item);
+                    break;
+                case 2:
+                    result.position.z = std::stod(item);
+                    break;
+                case 3:
+                    result.orientation.x = std::stod(item);
+                    break;
+                case 4:
+                    result.orientation.y = std::stod(item);
+                    break;
+                case 5:
+                    result.orientation.z = std::stod(item);
+                    break;
+                case 6:
+                    result.orientation.w = std::stod(item);
+                    break;
+            }
+        }
+
         return result;
     }
 

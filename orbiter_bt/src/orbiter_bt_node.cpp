@@ -46,6 +46,20 @@ void OrbiterBTNode::creatBT()
     //     return std::make_unique<MoveArm_Wrapper>(name, config, shared_from_this());
     // };
     // factory.registerBuilder<MoveArm_Wrapper>("MoveArm_Wrapper", builder);
+
+    RCLCPP_INFO(get_logger(), "Move Arm CuRobo creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<MoveArm_CuRobo>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<MoveArm_CuRobo>("MoveArm_CuRobo", builder);
+
+    RCLCPP_INFO(get_logger(), "getSucPose creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<GetItemPose>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<GetItemPose>("getSucPose", builder);
    
     RCLCPP_INFO(get_logger(), "vendingMachine creating");
     builder = 
@@ -98,7 +112,9 @@ void OrbiterBTNode::creatBT()
 
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
+    tree_ = factory.createTreeFromFile(bt_xml_dir + "/getsuc_then_move.xml");
+
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
 
     printTreeRecursively(tree_.rootNode());
