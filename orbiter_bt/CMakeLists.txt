@@ -10,7 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
-find_package(moveit_msgs REQUIRED)
+# find_package(moveit_msgs REQUIRED)
 # find_package(moveit REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -22,7 +22,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(ros2_aruco_interfaces REQUIRED) 
 
-find_package(moveit_ros_planning_interface REQUIRED)
+# find_package(moveit_ros_planning_interface REQUIRED)
 find_package(urdf REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
@@ -48,7 +48,7 @@ set(BEHAVIOR_SOURCES
 src/orbiter_nav_behaviors.cpp
 src/orbiter_getItemInfo.cpp
 src/orbiter_vendingMachineActuate.cpp
-src/orbiter_moveit_bahaviors_wrapper.cpp
+# src/orbiter_moveit_bahaviors_wrapper.cpp
 src/orbiter_waitUntilActivate.cpp
 src/orbiter_getVendingLoc.cpp
 src/orbiter_checkArmGoal.cpp
@@ -62,8 +62,8 @@ set(TARGET_DEPENDS
     yaml-cpp
     behaviortree_cpp_v3
     rclcpp_action
-    moveit_msgs
-    moveit_ros_planning_interface
+    # moveit_msgs
+    # moveit_ros_planning_interface
     ims_interfaces
     urdf
     visualization_msgs
@@ -85,8 +85,8 @@ target_link_libraries(orbiter_bt_node
     ${tf2_LIBRARIES}
     ${tf2_ros_LIBRARIES})
 target_link_libraries(orbiter_bt_node ${YAML_CPP_LIBRARIES})
-target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
-target_link_libraries(orbiter_bt_node ${moveit_ros_planning_interface_LIBRARIES})
+# target_link_libraries(orbiter_bt_node ${moveit_msgs_LIBRARIES})
+# target_link_libraries(orbiter_bt_node ${moveit_ros_planning_interface_LIBRARIES})
 ament_target_dependencies(orbiter_bt_node ims_interfaces)
 
 
