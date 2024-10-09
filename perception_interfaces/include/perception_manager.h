@@ -43,15 +43,27 @@ class PerceptionManager : public rclcpp::Node
         }
 
         void _color_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){
-            _color_image = *msg;
+            if (msg->data.empty()) {
+                RCLCPP_WARN(this->get_logger(), "Received blank color image");
+            } else {
+                _color_image = *msg;
+            }
         }
 
         void _depth_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){
-            _depth_image = *msg;
+            if (msg->data.empty()) {
+                RCLCPP_WARN(this->get_logger(), "Received blank depth image");
+            } else {
+                _depth_image = *msg;
+            }
         }
 
         void _camera_info_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg){
-            _camera_info = *msg;
+            if (msg->d.empty()) {
+                RCLCPP_WARN(this->get_logger(), "Received blank camera info");
+            } else {
+                _camera_info = *msg;
+            }
         }
 
         sensor_msgs::msg::Image _segmask;
