@@ -48,6 +48,7 @@ class PerceptionManager : public rclcpp::Node
             if (msg->data.empty()) {
                 RCLCPP_WARN(this->get_logger(), "Received blank color image");
             } else {
+                RCLCPP_INFO(this->get_logger(), "Received img");
                 _color_image = *msg;
             }
         }

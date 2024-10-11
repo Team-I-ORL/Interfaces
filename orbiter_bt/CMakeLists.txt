@@ -22,6 +22,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(ros2_aruco_interfaces REQUIRED) 
+find_package(target_client REQUIRED)
 
 # find_package(moveit_ros_planning_interface REQUIRED)
 find_package(urdf REQUIRED)
@@ -35,7 +36,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Ims.srv"
   "srv/MoveArm.srv"
   "srv/GetSucPose.srv"
-  "srv/Suck.srv"
+  # "srv/Suck.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
@@ -77,6 +78,7 @@ set(TARGET_DEPENDS
     tf2
     tf2_ros
     tf2_geometry_msgs
+    target_client
 )
 
 include_directories(

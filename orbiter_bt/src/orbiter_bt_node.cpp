@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     // BT::PublisherZMQ publisher_zmq(node->tree_);
 
     node->setup();
-    BT::PublisherZMQ publisher_zmq(node->tree_);
+    // BT::PublisherZMQ publisher_zmq(node->tree_);
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

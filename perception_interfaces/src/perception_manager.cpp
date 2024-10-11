@@ -7,8 +7,8 @@ PerceptionManager::PerceptionManager() :
     tf_broadcaster(this)
 {
     // Declare parameters
-    this->declare_parameter<std::string>("base_link_name", "/base_link");
-    this->declare_parameter<std::string>("camera_link_name", "/head_camera_rgb_optical_frame");
+    this->declare_parameter<std::string>("base_link_name", "base_link");
+    this->declare_parameter<std::string>("camera_link_name", "head_camera_rgb_optical_frame");
     this->declare_parameter<std::string>("segmask_service_name", "/seg_mask");
     this->declare_parameter<std::string>("sucpose_service_name", "/sucpose_service");
 
@@ -49,7 +49,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
 {
     // Retrieve request information
     std::string item = request->item.data;
-
+    RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request...");
     // Call segmentation mask service
     auto segmask_request = std::make_shared<perception_interfaces::srv::Segmask::Request>();
     segmask_request->object_of_interest.data = item;
