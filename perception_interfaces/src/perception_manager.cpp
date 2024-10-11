@@ -35,6 +35,9 @@ PerceptionManager::PerceptionManager() :
         std::bind(&PerceptionManager::_depth_image_callback, this, std::placeholders::_1), sub_options);
     _camera_info_sub = this->create_subscription<sensor_msgs::msg::CameraInfo>("/head_camera/camera_info", 5,
         std::bind(&PerceptionManager::_camera_info_callback, this, std::placeholders::_1), sub_options);
+
+    // Create publisher
+    _suc_pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("/suction_pose_pm", 5);
     
     // Create service
     _get_suc_pose_service = this->create_service<orbiter_bt::srv::GetSucPose>("get_suc_pose",
@@ -116,6 +119,12 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
 
     response->pose = suction_pose_base_link;
 
+    auto pose_msg = geometry_msgs::msg::PoseStamped();
+    pose_msg.header.stamp = this->now();
+    pose_msg.header.frame_id = base_link_name;
+    pose_msg.pose = suction_pose_base_link;
+    _suc_pose_pub->publish(pose_msg);
+    
     _segmask_received = false;
     _sucpose_received = false;
 }

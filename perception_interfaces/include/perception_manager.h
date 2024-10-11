@@ -7,6 +7,7 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include <tf2_ros/buffer.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 class PerceptionManager : public rclcpp::Node
 {   
@@ -19,6 +20,7 @@ class PerceptionManager : public rclcpp::Node
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _color_image_sub;
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _depth_image_sub;
         rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr _camera_info_sub;
+        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr _suc_pose_pub;
         rclcpp::CallbackGroup::SharedPtr _subscription_callback_group;
         
         tf2_ros::Buffer tfBuffer;
