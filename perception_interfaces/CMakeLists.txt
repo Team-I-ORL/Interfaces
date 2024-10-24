@@ -35,6 +35,8 @@ find_package(tf2_ros REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Segmask.srv"
   "srv/Sucpose.srv"
+  "srv/FindObjInFrame.srv"
+  "srv/FindX.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs# Add packages that above messages depend on, in this case std_msgs for msg/Item.msg and srv/Item.srv
 )
 
