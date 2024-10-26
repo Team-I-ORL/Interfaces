@@ -29,6 +29,7 @@ BT::NodeStatus SuctionCmd::onStart()
     request->command = bt_string_serialize::stringToInt(goal.value());
 
     auto result = client->async_send_request(request, std::bind(&SuctionCmd::result_callback, this, std::placeholders::_1));
+    start_time = node_->now();
     return BT::NodeStatus::RUNNING;
 }
 

@@ -160,6 +160,8 @@ void OrbiterBTNode::updateBT()
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
+    rclcpp::executors::MultiThreadedExecutor executor;
+
     auto node = std::make_shared<OrbiterBTNode>("orbiter_bt_node");
 
     // std::cout << "Node pointer 1: " << node.get() << std::endl;
@@ -167,7 +169,11 @@ int main(int argc, char *argv[])
 
     node->setup();
     // BT::PublisherZMQ publisher_zmq(node->tree_);
-    rclcpp::spin(node);
+    // rclcpp::spin(node);
+    // rclcpp::shutdown();
+
+    executor.add_node(node);
+    executor.spin();
     rclcpp::shutdown();
     return 0;
 }

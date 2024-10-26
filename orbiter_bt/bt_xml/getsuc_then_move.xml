@@ -5,8 +5,14 @@
     
         <Sequence>
             <Action ID="getSucPose" itemName="default" pose="{pose}"/>
-            <!-- <SetBlackboard output_key="loc" value="[1,1,1]" /> -->
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="0"/>
             <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="1"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="6"/>
+            <Action ID="suctionCmd" cmd="1"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="2"/>
+            <Action ID="suctionCmd" cmd="0"/>
+            <Action ID="waitUntilActivate"/>
+            
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->

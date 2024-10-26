@@ -19,7 +19,7 @@ PerceptionManager::PerceptionManager() :
     this->get_parameter("sucpose_service_name", sucpose_service_name);
 
     // Create clients
-    _client_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    _client_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     _sucpose_client = this->create_client<perception_interfaces::srv::Sucpose>(sucpose_service_name,
         rmw_qos_profile_services_default, _client_callback_group);
     _segmask_client = this->create_client<perception_interfaces::srv::Segmask>(segmask_service_name,
@@ -30,7 +30,7 @@ PerceptionManager::PerceptionManager() :
         rmw_qos_profile_services_default, _client_callback_group);
 
     // Create subscriptions
-    _subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    _subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>> sub_options;
     sub_options.callback_group = _subscription_callback_group;
     _color_image_sub = this->create_subscription<sensor_msgs::msg::Image>("/head_camera/rgb/image_raw", 5, 
@@ -43,7 +43,7 @@ PerceptionManager::PerceptionManager() :
     // Create publisher
     _suc_pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("/suction_pose_pm", 5);
     
-    _service_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    _service_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     // Create service
     _get_suc_pose_service = this->create_service<orbiter_bt::srv::GetSucPose>("get_suc_pose",
         std::bind(&PerceptionManager::_get_suc_pose, this, std::placeholders::_1, std::placeholders::_2),
@@ -77,10 +77,11 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
          std::bind(&PerceptionManager::_seg_mask_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Segmentation mask service called");
     
-    while (rclcpp::ok() && !_segmask_received) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
-    }
+    // while (rclcpp::ok() && !_segmask_received) {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //     RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
+    // }
+    segmask_result.wait_for(std::chrono::seconds(5));
 
     // Call suc pose service
     auto sucpose_request = std::make_shared<perception_interfaces::srv::Sucpose::Request>();
@@ -101,10 +102,11 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
          std::bind(&PerceptionManager::_suc_pose_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Suction pose service called");
 
-    while (rclcpp::ok() && !_sucpose_received) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        RCLCPP_INFO(this->get_logger(), "Waiting for suction pose service...");
-    }
+    // while (rclcpp::ok() && !_sucpose_received) {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //     RCLCPP_INFO(this->get_logger(), "Waiting for suction pose service...");
+    // }
+    sucpose_result.wait();
 
     //transform suction pose to base frame
     geometry_msgs::msg::TransformStamped transformStamped;
