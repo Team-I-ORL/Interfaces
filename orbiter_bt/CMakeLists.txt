@@ -37,6 +37,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MoveArm.srv"
   "srv/GetSucPose.srv"
   "srv/MoveHead.srv"
+  "srv/Suck.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
@@ -59,6 +60,8 @@ src/orbiter_repetitionManager.cpp
 src/orbiter_nav_yaw_rand.cpp
 src/orbiter_moveArmCuRobo.cpp
 src/orbiter_getSucPose.cpp
+src/orbiter_moveHead.cpp
+src/orbiter_suck.cpp
 )
 
 set(TARGET_DEPENDS

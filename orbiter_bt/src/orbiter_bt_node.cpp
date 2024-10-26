@@ -110,6 +110,20 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<RandomizeYaw>("randAng", builder);
 
+    RCLCPP_INFO(get_logger(), "SuctionCmd creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<SuctionCmd>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<SuctionCmd>("suctionCmd", builder);
+
+    RCLCPP_INFO(get_logger(), "MoveHead creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<MoveHead>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<MoveHead>("moveHead", builder);
+
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");

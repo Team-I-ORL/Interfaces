@@ -30,6 +30,7 @@ BT::NodeStatus MoveHead::onStart()
 
     RCLCPP_INFO(node_->get_logger(), "Sending Head Goal: %s", goal.value().c_str());
     auto result = client->async_send_request(request, std::bind(&MoveHead::result_callback, this, std::placeholders::_1));
+    return BT::NodeStatus::RUNNING;
 }
 
 BT::NodeStatus MoveHead::onRunning()

@@ -13,6 +13,8 @@
 #include "orbiter_checkArmGoal.h"
 #include "orbiter_clearInputs.h"
 #include "orbiter_repetitionManager.h"
+#include "orbiter_suck.h"
+#include "orbiter_moveHead.h"
 #include "behaviortree_cpp_v3/loggers/bt_zmq_publisher.h"
 #include "ament_index_cpp/get_package_share_directory.hpp"
 // #include "behaviortree_cpp/bt_factory.h"
