@@ -1,5 +1,5 @@
 string object
-int8 id
+int32 id
 ---
-int8 x
-int8 y
+int32 x
+int32 y

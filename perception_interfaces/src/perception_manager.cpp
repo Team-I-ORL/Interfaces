@@ -24,6 +24,10 @@ PerceptionManager::PerceptionManager() :
         rmw_qos_profile_services_default, _client_callback_group);
     _segmask_client = this->create_client<perception_interfaces::srv::Segmask>(segmask_service_name,
         rmw_qos_profile_services_default, _client_callback_group);
+    _find_aruco_in_frame_client = this->create_client<perception_interfaces::srv::FindObjInFrame>("/find_aruco_in_frame",
+        rmw_qos_profile_services_default, _client_callback_group);
+    _find_box_in_frame_client = this->create_client<perception_interfaces::srv::FindObjInFrame>("/find_box_in_frame",
+        rmw_qos_profile_services_default, _client_callback_group);
 
     // Create subscriptions
     _subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
@@ -39,9 +43,14 @@ PerceptionManager::PerceptionManager() :
     // Create publisher
     _suc_pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("/suction_pose_pm", 5);
     
+    _service_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     // Create service
     _get_suc_pose_service = this->create_service<orbiter_bt::srv::GetSucPose>("get_suc_pose",
-        std::bind(&PerceptionManager::_get_suc_pose, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&PerceptionManager::_get_suc_pose, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, _service_callback_group);
+    _find_x_service = this->create_service<perception_interfaces::srv::FindX>("find_x",
+        std::bind(&PerceptionManager::_find_x, this, std::placeholders::_1, std::placeholders::_2),
+        rmw_qos_profile_services_default, _service_callback_group);
 }
 
 void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::GetSucPose::Request> request,
@@ -127,6 +136,39 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     
     _segmask_received = false;
     _sucpose_received = false;
+}
+
+void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv::FindX::Request> request,
+                           std::shared_ptr<perception_interfaces::srv::FindX::Response> response){
+    RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request Find X...");
+    if (request->object == "aruco"){
+        RCLCPP_INFO(this->get_logger(), "Finding Aruco in Frame...");
+        auto find_aruco_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        find_aruco_in_frame_request->image = _color_image;
+        RCLCPP_INFO(this->get_logger(), "Waiting for find aruco in frame service...");
+
+        auto future = _find_aruco_in_frame_client->async_send_request(find_aruco_in_frame_request,
+            std::bind(&PerceptionManager::_find_aruco_in_frame_callback, this, std::placeholders::_1));
+        future.wait_for(std::chrono::seconds(5));
+        response->x = _obj_frame_x;
+        response->y = _obj_frame_y;
+    }
+    else if (request->object == "box"){
+        RCLCPP_INFO(this->get_logger(), "Finding Box in Frame...");
+        auto find_box_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        find_box_in_frame_request->image = _color_image;
+        RCLCPP_INFO(this->get_logger(), "Waiting for find box in frame service...");
+
+        auto future = _find_box_in_frame_client->async_send_request(find_box_in_frame_request,
+            std::bind(&PerceptionManager::_find_box_in_frame_callback, this, std::placeholders::_1));
+        future.wait_for(std::chrono::seconds(5));
+        response->x = _obj_frame_x;
+        response->y = _obj_frame_y;
+    }
+    else{
+        RCLCPP_ERROR(this->get_logger(), "Unknown object type");
+    }
+    return;
 }
 
 int main(int argc, char * argv[])
