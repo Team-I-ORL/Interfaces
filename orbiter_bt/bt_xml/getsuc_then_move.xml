@@ -6,7 +6,7 @@
         <Sequence>
             <Action ID="getSucPose" itemName="default" pose="{pose}"/>
             <!-- <SetBlackboard output_key="loc" value="[1,1,1]" /> -->
-            <Action ID="MoveArm_CuRobo" arm_goal="{pose}"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="1"/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
