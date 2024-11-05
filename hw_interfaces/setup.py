@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'sucker = hw_interfaces.sucker:main'
+            'sucker = hw_interfaces.sucker:main',
+            'test_sucker = hw_interfaces.test_sucker:main'
         ],
     },
 )

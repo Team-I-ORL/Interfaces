@@ -1,8 +1,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "perception_interfaces/srv/segmask.hpp"
 #include "perception_interfaces/srv/sucpose.hpp"
+#include "perception_interfaces/srv/droppose.hpp"
 #include "perception_interfaces/srv/find_x.hpp"
 #include "perception_interfaces/srv/find_obj_in_frame.hpp"
+#include "orbiter_bt/srv/get_drop_pose.hpp"
 #include "orbiter_bt/srv/get_suc_pose.hpp"
 #include <tf2_ros/transform_listener.h>
 #include "tf2_ros/transform_broadcaster.h"
@@ -15,10 +17,12 @@ class PerceptionManager : public rclcpp::Node
 {   
     private:
         rclcpp::Service<orbiter_bt::srv::GetSucPose>::SharedPtr _get_suc_pose_service;
+        rclcpp::Service<orbiter_bt::srv::GetDropPose>::SharedPtr _get_drop_pose_service;
         rclcpp::Service<perception_interfaces::srv::FindX>::SharedPtr _find_x_service;
 
         rclcpp::Client<perception_interfaces::srv::Segmask>::SharedPtr _segmask_client;
         rclcpp::Client<perception_interfaces::srv::Sucpose>::SharedPtr _sucpose_client;
+        rclcpp::Client<perception_interfaces::srv::Droppose>::SharedPtr _droppose_client;
         rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedPtr _find_aruco_in_frame_client;
         rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedPtr _find_box_in_frame_client;
         rclcpp::CallbackGroup::SharedPtr _client_callback_group;
@@ -27,7 +31,7 @@ class PerceptionManager : public rclcpp::Node
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _color_image_sub;
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _depth_image_sub;
         rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr _camera_info_sub;
-        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr _suc_pose_pub;
+        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr _pose_pub;
         rclcpp::CallbackGroup::SharedPtr _subscription_callback_group;
         
         tf2_ros::Buffer tfBuffer;
@@ -48,7 +52,13 @@ class PerceptionManager : public rclcpp::Node
         void _suc_pose_callback(rclcpp::Client<perception_interfaces::srv::Sucpose>::SharedFuture response){
             RCLCPP_INFO(this->get_logger(), "Suction pose service received");
             _sucpose = response.get()->pose;
+            RCLCPP_INFO(this->get_logger(), "Suction pose received: %f %f %f", _sucpose.position.x, _sucpose.position.y, _sucpose.position.z);
             _sucpose_received = true;
+        }
+
+        void _drop_pose_callback(rclcpp::Client<perception_interfaces::srv::Droppose>::SharedFuture response){
+            _droppose = response.get()->pose;
+            RCLCPP_INFO(this->get_logger(), "Drop pose received: %f %f %f", _droppose.position.x, _droppose.position.y, _droppose.position.z);
         }
 
         void _find_aruco_in_frame_callback(rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response){
@@ -66,8 +76,11 @@ class PerceptionManager : public rclcpp::Node
         void _color_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){
             if (msg->data.empty()) {
                 RCLCPP_WARN(this->get_logger(), "Received blank color image");
-            } else {
-                RCLCPP_INFO(this->get_logger(), "Received img");
+            } 
+            else if (msg->encoding != "rgb8") {
+                RCLCPP_WARN(this->get_logger(), "Received color image with encoding %s", msg->encoding.c_str());
+            }
+            else {
                 _color_image = *msg;
             }
         }
@@ -75,7 +88,11 @@ class PerceptionManager : public rclcpp::Node
         void _depth_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){
             if (msg->data.empty()) {
                 RCLCPP_WARN(this->get_logger(), "Received blank depth image");
-            } else {
+            } 
+            else if (msg->encoding != "16UC1") {
+                RCLCPP_WARN(this->get_logger(), "Received depth image with encoding %s", msg->encoding.c_str());
+            }
+            else {
                 _depth_image = *msg;
             }
         }
@@ -94,12 +111,16 @@ class PerceptionManager : public rclcpp::Node
         sensor_msgs::msg::CameraInfo _camera_info;
         bool _segmask_received = false;
         geometry_msgs::msg::Pose _sucpose;
+        geometry_msgs::msg::Pose _droppose;
         bool _sucpose_received = false;
         int _obj_frame_x = -1;
         int _obj_frame_y = -1;
         
         void _get_suc_pose(const std::shared_ptr<orbiter_bt::srv::GetSucPose::Request> request,
                            std::shared_ptr<orbiter_bt::srv::GetSucPose::Response> response);
+
+        void _get_drop_pose(const std::shared_ptr<orbiter_bt::srv::GetDropPose::Request> request,
+                           std::shared_ptr<orbiter_bt::srv::GetDropPose::Response> response);
 
         void _find_x(const std::shared_ptr<perception_interfaces::srv::FindX::Request> request,
                            std::shared_ptr<perception_interfaces::srv::FindX::Response> response);

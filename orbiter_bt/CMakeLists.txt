@@ -38,6 +38,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetSucPose.srv"
   "srv/MoveHead.srv"
   "srv/Suck.srv"
+  "srv/GetDropPose.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
@@ -59,7 +60,7 @@ src/orbiter_clearInputs.cpp
 src/orbiter_repetitionManager.cpp
 src/orbiter_nav_yaw_rand.cpp
 src/orbiter_moveArmCuRobo.cpp
-src/orbiter_getSucPose.cpp
+src/orbiter_getItemPose.cpp
 src/orbiter_moveHead.cpp
 src/orbiter_suck.cpp
 )

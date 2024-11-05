@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <!-- <Action ID="getNextAction" next="{next_action}"/> -->
+            <SetBlackboard output_key="next_action" value="restocking" />
+            <Switch3 case_1="restocking" case_2="retrieval" case_3="wait" variable="{next_action}">
+                <Fallback>
+                    <SubTree ID="restocking_pipeline"/>
+                    <!-- <Action ID="signalRestockingFinished"/> -->
+                    <SetBlackboard output_key="next_action" value="wait" />
+                </Fallback>
+                <SubTree ID="retrieval_pipeline"/>
+                <AlwaysSuccess/>
+            </Switch3>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <BehaviorTree ID="restocking_pipeline">
+        <Sequence>
+            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Sequence>
+                <Action ID="moveHead" head_goal="aruco" name="move head to aruco"/>
+                <Action ID="getItemPose" itemName="1" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
+                <Action ID="moveHead" head_goal="box" name="move head to box"/>
+                <Action ID="getItemPose" itemName="default" name="get box pose" pose="{box_pose}" type="suc"/>
+            </Sequence>
+            <Sequence>
+                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="0"/>
+                <Action ID="suctionCmd" cmd="1"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="1"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="2"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="3"/>
+                <Action ID="suctionCmd" cmd="0"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="4"/>
+            </Sequence>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <BehaviorTree ID="retrieval_pipeline">
+        <Sequence>
+            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Sequence>
+                <Action ID="moveHead" head_goal="aruco2"/>
+                <Action ID="getItemPose" itemName="default" pose="{suction_pose}" type="suc"/>
+            </Sequence>
+            <Sequence>
+                <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="0"/>
+                <Action ID="suctionCmd" cmd="1"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="3"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="4"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="7"/>
+            </Sequence>
+            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Action ID="suctionCmd" cmd="0"/>
+        </Sequence>
+    </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="GoToPose">
+            <inout_port name="nav_goal"/>
+            <inout_port name="yaw"/>
+        </Action>
+        <Action ID="MoveArm_CuRobo">
+            <inout_port name="arm_goal"/>
+            <inout_port name="traj_type"/>
+        </Action>
+        <Action ID="getItemPose">
+            <inout_port name="itemName"/>
+            <inout_port name="pose"/>
+            <inout_port name="type"/>
+        </Action>
+        <!-- <Action ID="getNextAction">
+            <inout_port default="restocking" name="next"/> -->
+        </Action>
+        <Action ID="moveHead">
+            <inout_port name="head_goal"/>
+        </Action>
+        <SubTree ID="restocking_pipeline"/>
+        <SubTree ID="retrieval_pipeline"/>
+        <!-- <Action ID="signalRestockingFinished"/> -->
+        <Action ID="suctionCmd">
+            <inout_port name="cmd"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
+</root>

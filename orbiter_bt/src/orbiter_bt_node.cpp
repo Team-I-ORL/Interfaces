@@ -54,12 +54,19 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<MoveArm_CuRobo>("MoveArm_CuRobo", builder);
 
-    RCLCPP_INFO(get_logger(), "getSucPose creating");
+    RCLCPP_INFO(get_logger(), "getItemPose creating");
     builder = 
         [=](const std::string &name, const BT::NodeConfiguration &config) {
         return std::make_unique<GetItemPose>(name, config, shared_from_this());
     };
-    factory.registerBuilder<GetItemPose>("getSucPose", builder);
+    factory.registerBuilder<GetItemPose>("getItemPose", builder);
+
+    // RCLCPP_INFO(get_logger(), "getDropPose creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<GetDropPose>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<GetDropPose>("getDropPose", builder);
    
     RCLCPP_INFO(get_logger(), "vendingMachine creating");
     builder = 

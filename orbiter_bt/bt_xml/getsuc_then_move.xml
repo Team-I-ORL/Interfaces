@@ -4,14 +4,46 @@
     <BehaviorTree ID="BehaviorTree">
     
         <Sequence>
-            <Action ID="getSucPose" itemName="default" pose="{pose}"/>
+        <!-- <Action ID="suctionCmd" cmd="0"/>
+            <Action ID="waitUntilActivate"/> -->
+            <!-- <Action ID="getDropPose" aruco_id="1" pose="{goal_pose}"/> -->
+
+            
+            <Action ID="getItemPose" type="drop" itemName="1" pose="{goal_pose}"/>
+
+            <Action ID="getItemPose" type="suc" itemName="default" pose="{pose}"/>
+            
             <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="0"/>
+            <!-- <Action ID="suctionCmd" cmd="1"/> -->
+
             <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="1"/>
-            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="6"/>
-            <Action ID="suctionCmd" cmd="1"/>
+
             <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="2"/>
-            <Action ID="suctionCmd" cmd="0"/>
+
+            <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="0"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="3"/>
+            <!-- <Action ID="suctionCmd" cmd="0"/> -->
+            <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="4"/>
+
             <Action ID="waitUntilActivate"/>
+           
+
+            <!-- <Action ID="getItemPose" type="suc" itemName="default" pose="{pose}"/>
+            
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="0"/>
+            <Action ID="suctionCmd" cmd="1"/>
+
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="3"/>
+
+            <Action ID="MoveArm_CuRobo" arm_goal="{pose}" traj_type="4"/>
+
+            <!-- <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="0"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="3"/>
+            <Action ID="suctionCmd" cmd="0"/>
+            <Action ID="MoveArm_CuRobo" arm_goal="{goal_pose}" traj_type="4"/> -->
+            <Action ID="suctionCmd" cmd="0"/>
+
+            <Action ID="waitUntilActivate"/> -->
             
         </Sequence>
     </BehaviorTree>

@@ -1,0 +1,4 @@
+int32 aruco_id
+sensor_msgs/Image color_image
+---
+geometry_msgs/Pose pose

@@ -3,10 +3,14 @@ from rclpy.node import Node
 import rclpy
 from orbiter_bt.srv import Suck
 from std_msgs.msg import Bool
+import os
 
 class Sucker(Node):
     def __init__(self, serial_port='/dev/ttyUSB0', id=9):
         super().__init__('sucker')
+
+        os.system('sudo chmod 666 /dev/ttyUSB0')
+
         self.sucker = EvsClawControl_01()
         self.id = id
         result = self.sucker.serialOperation(serial_port, 115200, True)
@@ -19,13 +23,15 @@ class Sucker(Node):
         self.srv = self.create_service(Suck, '/suction_command', self.command_handler)
         self.suc_status_pub = self.create_publisher(Bool, '/suction_status', 10)
 
-        self.timer = self.create_timer(1.0, self.timer_callback)
+        self.timer = self.create_timer(0.2, self.timer_callback)
+        self.get_logger().info('Sucker node initialized.')
 
     def timer_callback(self):
         vacuum_degree = self.get_vacuum_degree()
+        # print(vacuum_degree)
         msg = Bool()
         # If vacuum_degree is less than -5, then the suction is engaged, so publish True
-        msg.data = vacuum_degree[0] < -5
+        msg.data = int(vacuum_degree[0]) < -5
         self.suc_status_pub.publish(msg)
     
     def command_handler(self, request, response):
@@ -72,3 +78,26 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+#####################################################################################################
+
+# from jodellSdk.jodellSdkDemo import *
+
+# import time
+# clawTool = EvsClawControl_01()
+
+# print(clawTool.searchCom())
+# # for i in range(10):
+# flag = clawTool.serialOperation('/dev/ttyUSB0', 115200, True)
+# print(flag)
+# print(clawTool.startOrStopDevice(9,0,1,False))
+
+# startTime = time.time()
+# while True:
+#     if time.time() - startTime > 10:
+#         break
+#     time.sleep(0.5)
+#     data = clawTool.getDeviceCurrentVacuumDegree(9)
+#     print("VD: ", data)
+
+# clawTool.startOrStopDevice(9,0,0,True)
+
