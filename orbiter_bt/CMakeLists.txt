@@ -39,6 +39,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MoveHead.srv"
   "srv/Suck.srv"
   "srv/GetDropPose.srv"
+  "srv/NextAction.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 

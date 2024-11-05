@@ -1,0 +1,4 @@
+bool status_request
+---
+string next_action
+string item
