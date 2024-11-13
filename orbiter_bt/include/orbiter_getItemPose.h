@@ -20,6 +20,7 @@ public:
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr update_scene_pub;
     std::string type;
     bool finished = false;
+    bool success = false;
 
     // overides for the BT::StatefulActionNode
     static BT::PortsList providedPorts();

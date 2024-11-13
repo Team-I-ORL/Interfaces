@@ -3,16 +3,17 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <!-- <Action ID="getNextAction" next="{next_action}"/> -->
+            <Action ID="getNextAction" next_action="{next_action}" itemname="{itemname}"/>
             <SetBlackboard output_key="next_action" value="restocking" />
             <Switch3 case_1="restocking" case_2="retrieval" case_3="wait" variable="{next_action}">
                 <Fallback>
                     <SubTree ID="restocking_pipeline"/>
-                    <!-- <Action ID="signalRestockingFinished"/> -->
+                    <Action ID="signalRestockingFinished" itemname="{itemname}"/>
                     <SetBlackboard output_key="next_action" value="wait" />
                 </Fallback>
                 <SubTree ID="retrieval_pipeline"/>
                 <AlwaysSuccess/>
+                <AlwaysFailure/>
             </Switch3>
         </Sequence>
     </BehaviorTree>
@@ -71,15 +72,18 @@
             <inout_port name="pose"/>
             <inout_port name="type"/>
         </Action>
-        <!-- <Action ID="getNextAction">
-            <inout_port default="restocking" name="next"/> -->
+        <Action ID="getNextAction">
+            <inout_port default="restocking" name="next"/>
+            <inout_port name="itemname"/>
         </Action>
         <Action ID="moveHead">
             <inout_port name="head_goal"/>
         </Action>
         <SubTree ID="restocking_pipeline"/>
         <SubTree ID="retrieval_pipeline"/>
-        <!-- <Action ID="signalRestockingFinished"/> -->
+        <Action ID="signalRestockingFinished">
+            <inout_port name="itemname"/>
+        </Action>
         <Action ID="suctionCmd">
             <inout_port name="cmd"/>
         </Action>

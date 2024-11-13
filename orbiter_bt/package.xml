@@ -20,7 +20,7 @@
   <depend>target_client</depend>
 
   <depend>nav2_msgs</depend>
-  <depend>ims_interfaces</depend>
+  <!-- <depend>ims_interfaces</depend> -->
   <depend>moveit_msgs</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>yaml-cpp</depend>

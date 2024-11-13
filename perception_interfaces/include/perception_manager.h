@@ -46,6 +46,13 @@ class PerceptionManager : public rclcpp::Node
         void _seg_mask_callback(rclcpp::Client<perception_interfaces::srv::Segmask>::SharedFuture response){
             RCLCPP_INFO(this->get_logger(), "Segmentation mask service received");
             _segmask = response.get()->segmask;
+            if (_segmask.data.empty()) {
+                RCLCPP_ERROR(this->get_logger(), "Received blank segmentation mask");
+            }
+            else if (_segmask.encoding != "mono8") {
+                RCLCPP_WARN(this->get_logger(), "Received segmentation mask with encoding %s", _segmask.encoding.c_str());
+                _segmask.encoding = "mono8";
+            }
             _segmask_received = true;
         }
         
@@ -65,12 +72,14 @@ class PerceptionManager : public rclcpp::Node
             RCLCPP_INFO(this->get_logger(), "Find Aruco in frame service received");
             _obj_frame_x = response.get()->x;
             _obj_frame_y = response.get()->y;
+            RCLCPP_INFO(this->get_logger(), "Aruco found at %d %d", _obj_frame_x, _obj_frame_y);
         }
 
         void _find_box_in_frame_callback(rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response){
             RCLCPP_INFO(this->get_logger(), "Find Box in frame service received");
             _obj_frame_x = response.get()->x;
             _obj_frame_y = response.get()->y;
+            RCLCPP_INFO(this->get_logger(), "Box found at %d %d", _obj_frame_x, _obj_frame_y);
         }
 
         void _color_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){

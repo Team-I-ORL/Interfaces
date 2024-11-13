@@ -40,6 +40,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Suck.srv"
   "srv/GetDropPose.srv"
   "srv/NextAction.srv"
+  "srv/MoveCam.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
@@ -51,19 +52,21 @@ DESTINATION share/${PROJECT_NAME}
 
 set(BEHAVIOR_SOURCES
 src/orbiter_nav_behaviors.cpp
-src/orbiter_getItemInfo.cpp
-src/orbiter_vendingMachineActuate.cpp
+# src/orbiter_getItemInfo.cpp
+# src/orbiter_vendingMachineActuate.cpp
 # src/orbiter_moveit_bahaviors_wrapper.cpp
 src/orbiter_waitUntilActivate.cpp
-src/orbiter_getVendingLoc.cpp
-src/orbiter_checkArmGoal.cpp
-src/orbiter_clearInputs.cpp
-src/orbiter_repetitionManager.cpp
-src/orbiter_nav_yaw_rand.cpp
+# src/orbiter_getVendingLoc.cpp
+# src/orbiter_checkArmGoal.cpp
+# src/orbiter_clearInputs.cpp
+# src/orbiter_repetitionManager.cpp
+# src/orbiter_nav_yaw_rand.cpp
 src/orbiter_moveArmCuRobo.cpp
 src/orbiter_getItemPose.cpp
 src/orbiter_moveHead.cpp
 src/orbiter_suck.cpp
+src/orbiter_getNextAction.cpp
+src/orbiter_signalFinish.cpp
 )
 
 set(TARGET_DEPENDS

@@ -30,6 +30,7 @@ BT::NodeStatus MoveHead::onStart()
 
     RCLCPP_INFO(node_->get_logger(), "Sending Head Goal: %s", goal.value().c_str());
     auto result = client->async_send_request(request, std::bind(&MoveHead::result_callback, this, std::placeholders::_1));
+    start_time = node_->now();
     return BT::NodeStatus::RUNNING;
 }
 
@@ -37,7 +38,7 @@ BT::NodeStatus MoveHead::onRunning()
 {   
     RCLCPP_INFO(node_->get_logger(), "Move Head Running!");
     auto time_now = node_->now();
-    if ((time_now - start_time).seconds() > 10)
+    if ((time_now - start_time).seconds() > 45)
     {
         RCLCPP_INFO(node_->get_logger(), "Move Head Timeout!");
         return BT::NodeStatus::FAILURE;

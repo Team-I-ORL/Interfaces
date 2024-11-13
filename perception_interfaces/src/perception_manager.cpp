@@ -96,6 +96,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     //     RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
     // }
     segmask_result.wait_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Call suc pose service
     auto sucpose_request = std::make_shared<perception_interfaces::srv::Sucpose::Request>();
@@ -114,6 +115,10 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     else if (_depth_image.encoding != "16UC1") {
         RCLCPP_ERROR(this->get_logger(), "Depth image encoding is not 16UC1 while calling suc pose service");
         sleep(1);
+    }
+    if (_segmask.data.empty() || _segmask.width == 0 || _segmask.height == 0) {
+        RCLCPP_ERROR(this->get_logger(), "Segmentation mask is empty while calling suc pose service");
+        return;
     }
     sucpose_request->color_image = _color_image;
     sucpose_request->color_image.encoding = "rgb8";
@@ -139,6 +144,11 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         RCLCPP_INFO(this->get_logger(), "Waiting for suction pose service...");
     }
     // sucpose_result.wait();
+
+    if (_sucpose.position.x == 0 && _sucpose.position.y == 0 && _sucpose.position.z == 0) {
+        RCLCPP_ERROR(this->get_logger(), "Received suction pose at origin");
+        return;
+    }
 
     //transform suction pose to base frame
     geometry_msgs::msg::TransformStamped transformStamped;
@@ -218,6 +228,9 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
         auto future = _find_aruco_in_frame_client->async_send_request(find_aruco_in_frame_request,
             std::bind(&PerceptionManager::_find_aruco_in_frame_callback, this, std::placeholders::_1));
         future.wait_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        RCLCPP_INFO(this->get_logger(), "Aruco sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
         response->x = _obj_frame_x;
         response->y = _obj_frame_y;
     }
@@ -230,6 +243,9 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
         auto future = _find_box_in_frame_client->async_send_request(find_box_in_frame_request,
             std::bind(&PerceptionManager::_find_box_in_frame_callback, this, std::placeholders::_1));
         future.wait_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        RCLCPP_INFO(this->get_logger(), "Box sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
         response->x = _obj_frame_x;
         response->y = _obj_frame_y;
     }

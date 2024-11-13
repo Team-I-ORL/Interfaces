@@ -11,6 +11,7 @@ GetItemPose::GetItemPose(const std::string &name,
     drop_client = node_->create_client<orbiter_bt::srv::GetDropPose>("get_drop_pose");
     update_scene_pub = node_->create_publisher<std_msgs::msg::Bool>("update_collision_env", 5);
     this->finished = false;
+    this->success = false;
 }
 
 BT::PortsList GetItemPose::providedPorts()
@@ -39,6 +40,8 @@ BT::NodeStatus GetItemPose::onStart()
         throw BT::RuntimeError("missing required input [itemName]");
     }
 
+    this->finished = false;
+    this->success = false;
     if (type == "suc"){
         RCLCPP_INFO(node_->get_logger(), "Getting pose for %s", object.value().c_str());
         auto request = std::make_shared<orbiter_bt::srv::GetSucPose::Request>();
@@ -49,7 +52,7 @@ BT::NodeStatus GetItemPose::onStart()
         RCLCPP_INFO(node_->get_logger(), "Request sent for Suction Pose, waiting for response.");
 
         std_msgs::msg::Bool msg;
-        msg.data = true;
+        msg.data = false;
         update_scene_pub->publish(msg);
     }
     else if (type == "drop"){
@@ -60,13 +63,8 @@ BT::NodeStatus GetItemPose::onStart()
         RCLCPP_INFO(node_->get_logger(), "Request sent for Drop Pose, waiting for response.");
 
         std_msgs::msg::Bool msg;
-        msg.data = false;
+        msg.data = true;
         update_scene_pub->publish(msg);
-        sleep(1);
-
-        std_msgs::msg::Bool msg2;
-        msg2.data = true;
-        update_scene_pub->publish(msg2);
     }
     else{
         throw BT::RuntimeError("Invalid type input , must be 'suc' or 'drop'");
@@ -78,8 +76,17 @@ BT::NodeStatus GetItemPose::onRunning()
 {
     if (this->finished)
     {
-        RCLCPP_INFO(node_->get_logger(), "Response received, success");
-        this->finished = false;
+        RCLCPP_INFO(node_->get_logger(), "Response received!");
+        if (this->success)
+        {
+            RCLCPP_INFO(node_->get_logger(), "Pose received, success");
+            return BT::NodeStatus::SUCCESS;
+        }
+        else
+        {   
+            RCLCPP_ERROR(node_->get_logger(), "Pose Estimation Failed");
+            return BT::NodeStatus::FAILURE;
+        }
         return BT::NodeStatus::SUCCESS;
     }
     else
@@ -95,10 +102,19 @@ void GetItemPose::suc_result_callback(rclcpp::Client<orbiter_bt::srv::GetSucPose
     RCLCPP_INFO(node_->get_logger(), "Response received, success");
     auto response = result.get();
     auto pose = response->pose;
+    
+    if (pose.position.x == 0 && pose.position.y == 0 && pose.position.z == 0){
+        RCLCPP_ERROR(node_->get_logger(), "Suction Pose not found");
+        this->finished = true;
+        this->success = false;
+        return;
+    }
+
     std::string pose_str = bt_string_serialize::poseToString(pose);
     setOutput("pose", pose_str);
     RCLCPP_INFO(node_->get_logger(), "Suction Pose: %s", pose_str.c_str());
     this->finished = true;
+    this->success = true;
 }
 
 void GetItemPose::drop_result_callback(rclcpp::Client<orbiter_bt::srv::GetDropPose>::SharedFuture result)
@@ -110,4 +126,5 @@ void GetItemPose::drop_result_callback(rclcpp::Client<orbiter_bt::srv::GetDropPo
     setOutput("pose", pose_str);
     RCLCPP_INFO(node_->get_logger(), "Drop Pose: %s", pose_str.c_str());
     this->finished = true;
+    this->success = true;
 }

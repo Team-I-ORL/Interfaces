@@ -34,11 +34,11 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<GoToPose>("GoToPose", builder);
     
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<GetItemInfo>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<GetItemInfo>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<GetItemInfo>("getItemInfo", builder);
 
     // RCLCPP_INFO(get_logger(), "MoveArm_Wrapper creating");
     // builder = 
@@ -68,12 +68,12 @@ void OrbiterBTNode::creatBT()
     // };
     // factory.registerBuilder<GetDropPose>("getDropPose", builder);
    
-    RCLCPP_INFO(get_logger(), "vendingMachine creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<ActuateVendingMachine>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<ActuateVendingMachine>("vendingMachineActuate", builder);
+    // RCLCPP_INFO(get_logger(), "vendingMachine creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<ActuateVendingMachine>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<ActuateVendingMachine>("vendingMachineActuate", builder);
 
     RCLCPP_INFO(get_logger(), "waitUntilActivate creating");
     builder = 
@@ -82,40 +82,40 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<wait_until_activate>("waitUntilActivate", builder);
 
-    RCLCPP_INFO(get_logger(), "arucoArmPose creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<arucoArmPose>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<arucoArmPose>("arucoArmPose", builder);
+    // RCLCPP_INFO(get_logger(), "arucoArmPose creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<arucoArmPose>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<arucoArmPose>("arucoArmPose", builder);
 
     RCLCPP_INFO(get_logger(), "checkArmGoal creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<checkArmGoal>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<checkArmGoal>("armGoalIsEmpty", builder);
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<checkArmGoal>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<checkArmGoal>("armGoalIsEmpty", builder);
 
-    RCLCPP_INFO(get_logger(), "clearInputs creating");
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<clearInputs>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<clearInputs>("clearInputs", builder);
+    // RCLCPP_INFO(get_logger(), "clearInputs creating");
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<clearInputs>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<clearInputs>("clearInputs", builder);
 
-    RCLCPP_INFO(get_logger(), "repetitionManager creating"); 
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<repetition_manager>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<repetition_manager>("repetitionManager", builder);
+    // RCLCPP_INFO(get_logger(), "repetitionManager creating"); 
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<repetition_manager>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<repetition_manager>("repetitionManager", builder);
 
-    RCLCPP_INFO(get_logger(), "randAng creating"); 
-    builder = 
-        [=](const std::string &name, const BT::NodeConfiguration &config) {
-        return std::make_unique<RandomizeYaw>(name, config, shared_from_this());
-    };
-    factory.registerBuilder<RandomizeYaw>("randAng", builder);
+    // RCLCPP_INFO(get_logger(), "randAng creating"); 
+    // builder = 
+    //     [=](const std::string &name, const BT::NodeConfiguration &config) {
+    //     return std::make_unique<RandomizeYaw>(name, config, shared_from_this());
+    // };
+    // factory.registerBuilder<RandomizeYaw>("randAng", builder);
 
     RCLCPP_INFO(get_logger(), "SuctionCmd creating");
     builder = 
@@ -131,10 +131,25 @@ void OrbiterBTNode::creatBT()
     };
     factory.registerBuilder<MoveHead>("moveHead", builder);
 
+    RCLCPP_INFO(get_logger(), "GetNextAction creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<GetNextAction>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<GetNextAction>("getNextAction", builder);
+
+    RCLCPP_INFO(get_logger(), "SingFinished creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<SingFinished>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<SingFinished>("signalRestockingFinished", builder);
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
     tree_ = factory.createTreeFromFile(bt_xml_dir + "/getsuc_then_move.xml");
+    // tree_ = factory.createTreeFromFile(bt_xml_dir + "/fall.xml");
+
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_nonbot.xml");
 
