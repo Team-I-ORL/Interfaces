@@ -1,11 +1,14 @@
 #include "orbiter_bt_node.h"
 
-const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orbiter_bt") + "/bt_xml";
+const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orbiter_bt") + "/bt_xml" + "/fall.xml";
 
 OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 {
     RCLCPP_INFO(get_logger(), "OrbiterBTNode has been created.");
     this->declare_parameter("inventory_file","none");
+    this->declare_parameter<std::string>("bt_xml_dir", bt_xml_dir);
+    // ros2 run orbiter_bt orbiter_bt_node --ros-args -p bt_xml_dir:="/home/siddharth/fall_ws/src/Interfaces/orbiter_bt/bt_xml/fall.xml"
+    this->get_parameter("bt_xml_dir", bt_xml_dir_);
 }
 
 OrbiterBTNode::~OrbiterBTNode()
@@ -147,7 +150,7 @@ void OrbiterBTNode::creatBT()
 
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_sequencial.xml");
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/testing_full_fallback.xml");
-    tree_ = factory.createTreeFromFile(bt_xml_dir + "/getsuc_then_move.xml");
+    tree_ = factory.createTreeFromFile(bt_xml_dir_);
     // tree_ = factory.createTreeFromFile(bt_xml_dir + "/fall.xml");
 
 
@@ -190,9 +193,9 @@ int main(int argc, char *argv[])
     // BT::PublisherZMQ publisher_zmq(node->tree_);
 
     node->setup();
-    // BT::PublisherZMQ publisher_zmq(node->tree_);
-    // rclcpp::spin(node);
-    // rclcpp::shutdown();
+    BT::PublisherZMQ publisher_zmq(node->tree_);
+    rclcpp::spin(node);
+    rclcpp::shutdown();
 
     executor.add_node(node);
     executor.spin();

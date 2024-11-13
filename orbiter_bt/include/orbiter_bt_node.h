@@ -27,6 +27,7 @@ class OrbiterBTNode : public rclcpp::Node
 {
 private:
     rclcpp::TimerBase::SharedPtr timer_;
+    std::string bt_xml_dir_;
 public:
     BT::Tree tree_;
     ~OrbiterBTNode();
