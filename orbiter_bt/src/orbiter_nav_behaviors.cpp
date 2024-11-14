@@ -49,10 +49,15 @@ BT::NodeStatus GoToPose::onStart()
     goal_msg.pose.header.frame_id = "map";
     goal_msg.pose.pose.position.x = goal[0];
     goal_msg.pose.pose.position.y = goal[1];
+
+    // Define the yaw as a quaternion
     tf2::Quaternion q;
-    q.setZ(theta);
-    q.setW(1.0);
+    q.setRPY(0, 0, theta);
     goal_msg.pose.pose.orientation = tf2::toMsg(q);
+    // tf2::Quaternion q;
+    // q.setZ(theta);
+    // q.setW(1.0);
+    // goal_msg.pose.pose.orientation = tf2::toMsg(q);
     RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, quaternion: %f, %f, %f, %f", goal_msg.pose.pose.position.x, goal_msg.pose.pose.position.y, goal_msg.pose.pose.orientation.x, goal_msg.pose.pose.orientation.y, goal_msg.pose.pose.orientation.z, goal_msg.pose.pose.orientation.w);
     // RCLCPP_INFO(node_->get_logger(), "Goal: X: %f, Y: %f, theta: %i", goal_msg.pose.pose.position.x, goal_msg.pose.pose.position.y, theta);
     // std::cout << goal_msg << std::endl;

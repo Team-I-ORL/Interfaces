@@ -48,7 +48,7 @@ BT::NodeStatus MoveArm_CuRobo::onRunning()
 {   
     RCLCPP_INFO(node_->get_logger(), "Move Arm Running!");
     auto time_now = node_->now();
-    if ((time_now - start_time).seconds() > 20)
+    if ((time_now - start_time).seconds() > 40)
     {
         RCLCPP_INFO(node_->get_logger(), "Move Arm Timeout!");
         return BT::NodeStatus::FAILURE;

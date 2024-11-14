@@ -48,10 +48,12 @@ BT::NodeStatus MoveHead::onRunning()
         RCLCPP_INFO(node_->get_logger(), "Move Head Finished!");
         if (move_head_result)
         {
+            RCLCPP_INFO(node_->get_logger(), "Move Head Success!");
             return BT::NodeStatus::SUCCESS;
         }
         else
         {
+            RCLCPP_INFO(node_->get_logger(), "Move Head Failed!");
             return BT::NodeStatus::FAILURE;
         }
     }
