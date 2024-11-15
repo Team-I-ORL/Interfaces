@@ -14,19 +14,34 @@ BT::PortsList MoveHead::providedPorts()
 {
     return {
         BT::InputPort<std::string>("head_goal"),
+        BT::InputPort<std::string>("type"),
         };
 }
 
 BT::NodeStatus MoveHead::onStart()
 {
     auto goal = getInput<std::string>("head_goal");
+    auto type = getInput<std::string>("type");
     if (!goal)
     {
         RCLCPP_ERROR(node_->get_logger(), "Missing required input [head_goal]");
         return BT::NodeStatus::FAILURE;
     }
     auto request = std::make_shared<orbiter_bt::srv::MoveHead::Request>();
+    if (!type || type.value() == "search")
+    {
+        request->type = true; // default to true
+        RCLCPP_INFO(node_->get_logger(), "Move Head Type: Search");
+    }
+    else
+    {
+        request->type = false;
+        RCLCPP_INFO(node_->get_logger(), "Move Head Type: Point");
+    }
     request->what = goal.value();
+
+    finished = false;
+    move_head_result = false;
 
     RCLCPP_INFO(node_->get_logger(), "Sending Head Goal: %s", goal.value().c_str());
     auto result = client->async_send_request(request, std::bind(&MoveHead::result_callback, this, std::placeholders::_1));
@@ -56,6 +71,8 @@ BT::NodeStatus MoveHead::onRunning()
             RCLCPP_INFO(node_->get_logger(), "Move Head Failed!");
             return BT::NodeStatus::FAILURE;
         }
+        finished = false;
+        move_head_result = false;
     }
     return BT::NodeStatus::RUNNING;
 }
