@@ -51,9 +51,9 @@ BT::NodeStatus GetItemPose::onStart()
         auto result = suc_client->async_send_request(request, std::bind(&GetItemPose::suc_result_callback, this, std::placeholders::_1));
         RCLCPP_INFO(node_->get_logger(), "Request sent for Suction Pose, waiting for response.");
 
-        std_msgs::msg::Bool msg;
-        msg.data = false;
-        update_scene_pub->publish(msg);
+        // std_msgs::msg::Bool msg;
+        // msg.data = false;
+        // update_scene_pub->publish(msg);
     }
     else if (type == "drop"){
         RCLCPP_INFO(node_->get_logger(), "Getting drop pose for %s", object.value().c_str());
@@ -62,9 +62,9 @@ BT::NodeStatus GetItemPose::onStart()
         auto result = drop_client->async_send_request(request, std::bind(&GetItemPose::drop_result_callback, this, std::placeholders::_1));
         RCLCPP_INFO(node_->get_logger(), "Request sent for Drop Pose, waiting for response.");
 
-        std_msgs::msg::Bool msg;
-        msg.data = true;
-        update_scene_pub->publish(msg);
+        // std_msgs::msg::Bool msg;
+        // msg.data = true;
+        // update_scene_pub->publish(msg);
     }
     else{
         throw BT::RuntimeError("Invalid type input , must be 'suc' or 'drop'");

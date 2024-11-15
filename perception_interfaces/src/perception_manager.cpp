@@ -227,7 +227,7 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
 
         auto future = _find_aruco_in_frame_client->async_send_request(find_aruco_in_frame_request,
             std::bind(&PerceptionManager::_find_aruco_in_frame_callback, this, std::placeholders::_1));
-        future.wait_for(std::chrono::seconds(5));
+        future.wait_for(std::chrono::seconds(15));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         RCLCPP_INFO(this->get_logger(), "Aruco sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
@@ -242,7 +242,7 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
 
         auto future = _find_box_in_frame_client->async_send_request(find_box_in_frame_request,
             std::bind(&PerceptionManager::_find_box_in_frame_callback, this, std::placeholders::_1));
-        future.wait_for(std::chrono::seconds(5));
+        future.wait_for(std::chrono::seconds(15));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         RCLCPP_INFO(this->get_logger(), "Box sending Find X at %d %d", _obj_frame_x, _obj_frame_y);

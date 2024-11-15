@@ -31,6 +31,7 @@ class Sucker(Node):
         # print(vacuum_degree)
         msg = Bool()
         # If vacuum_degree is less than -5, then the suction is engaged, so publish True
+        print(vacuum_degree[0])
         msg.data = int(vacuum_degree[0]) < -5
         self.suc_status_pub.publish(msg)
     
