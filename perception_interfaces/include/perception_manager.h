@@ -28,6 +28,8 @@ class PerceptionManager : public rclcpp::Node
         rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedPtr _find_box_in_frame_client;
         rclcpp::CallbackGroup::SharedPtr _client_callback_group;
         rclcpp::CallbackGroup::SharedPtr _service_callback_group;
+        int _service_count = 0;
+        int _client_count = 0;
 
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _color_image_sub;
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr _depth_image_sub;
@@ -55,6 +57,8 @@ class PerceptionManager : public rclcpp::Node
                 _segmask.encoding = "mono8";
             }
             _segmask_received = true;
+            _client_count--;
+            RCLCPP_INFO(this->get_logger(), "Client count After _seg_mask_callback: %d", _client_count);
         }
         
         void _suc_pose_callback(rclcpp::Client<perception_interfaces::srv::Sucpose>::SharedFuture response){
@@ -62,11 +66,15 @@ class PerceptionManager : public rclcpp::Node
             _sucpose = response.get()->pose;
             RCLCPP_INFO(this->get_logger(), "Suction pose received: %f %f %f", _sucpose.position.x, _sucpose.position.y, _sucpose.position.z);
             _sucpose_received = true;
+            _client_count--;
+            RCLCPP_INFO(this->get_logger(), "Client count After _suc_pose_callback: %d", _client_count);
         }
 
         void _drop_pose_callback(rclcpp::Client<perception_interfaces::srv::Droppose>::SharedFuture response){
             _droppose = response.get()->pose;
             RCLCPP_INFO(this->get_logger(), "Drop pose received: %f %f %f", _droppose.position.x, _droppose.position.y, _droppose.position.z);
+            _client_count--;
+            RCLCPP_INFO(this->get_logger(), "Client count After _drop_pose_callback: %d", _client_count);
         }
 
         void _find_aruco_in_frame_callback(rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response){
@@ -74,6 +82,8 @@ class PerceptionManager : public rclcpp::Node
             _obj_frame_x = response.get()->x;
             _obj_frame_y = response.get()->y;
             RCLCPP_INFO(this->get_logger(), "Aruco found at %d %d", _obj_frame_x, _obj_frame_y);
+            _client_count--;
+            RCLCPP_INFO(this->get_logger(), "Client count After _find_aruco_in_frame_callback: %d", _client_count);
         }
 
         void _find_box_in_frame_callback(rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response){
@@ -81,6 +91,8 @@ class PerceptionManager : public rclcpp::Node
             _obj_frame_x = response.get()->x;
             _obj_frame_y = response.get()->y;
             RCLCPP_INFO(this->get_logger(), "Box found at %d %d", _obj_frame_x, _obj_frame_y);
+            _client_count--;
+            RCLCPP_INFO(this->get_logger(), "Client count After _find_box_in_frame_callback: %d", _client_count);
         }
 
         void _color_image_callback(const sensor_msgs::msg::Image::SharedPtr msg){

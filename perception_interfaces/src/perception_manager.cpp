@@ -74,7 +74,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling segmentation mask service");
     }
     else if (_color_image.encoding != "rgb8") {
-        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service");
+        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service, is ", _color_image.encoding);
     }
     segmask_request->color_image = _color_image;
     segmask_request->color_image.encoding = "rgb8";
@@ -287,9 +287,7 @@ int main(int argc, char * argv[])
     executor.add_node(perception_manager);
     
     // Spin until shutdown is requested
-    while (rclcpp::ok() && !g_shutdown) {
-        executor.spin_once();
-    }
+    executor.spin();
     
     std::cout << "Perception Manager shutting down!!!!" << std::endl;
     rclcpp::shutdown();
