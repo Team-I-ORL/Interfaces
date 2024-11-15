@@ -65,7 +65,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
 {
     // Retrieve request information
     std::string item = request->item.data;
-    RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request...");
+    RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request GetSucPose for %s", item.c_str());
     // Call segmentation mask service
     auto segmask_request = std::make_shared<perception_interfaces::srv::Segmask::Request>();
     segmask_request->object_of_interest.data = item;
@@ -91,30 +91,30 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
          std::bind(&PerceptionManager::_seg_mask_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Segmentation mask service called");
     
-    // while (rclcpp::ok() && !_segmask_received) {
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    //     RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
-    // }
-    segmask_result.wait_for(std::chrono::seconds(5));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (rclcpp::ok() && !_segmask_received) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
+    }
+    // segmask_result.wait_for(std::chrono::seconds(5));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // Call suc pose service
     auto sucpose_request = std::make_shared<perception_interfaces::srv::Sucpose::Request>();
     if (_color_image.data.empty()) {
         RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling suc pose service");
-        sleep(1);
+        return;
     }
     else if (_color_image.encoding != "rgb8") {
         RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling suc pose service");
-        sleep(1);
+        return;
     }
     if (_depth_image.data.empty() || _depth_image.width == 0 || _depth_image.height == 0) {
         RCLCPP_ERROR(this->get_logger(), "Depth image is empty while calling suc pose service");
-        sleep(1);
+        return;
     }
     else if (_depth_image.encoding != "16UC1") {
         RCLCPP_ERROR(this->get_logger(), "Depth image encoding is not 16UC1 while calling suc pose service");
-        sleep(1);
+        return;
     }
     if (_segmask.data.empty() || _segmask.width == 0 || _segmask.height == 0) {
         RCLCPP_ERROR(this->get_logger(), "Segmentation mask is empty while calling suc pose service");
@@ -145,7 +145,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     }
     // sucpose_result.wait();
 
-    if (_sucpose.position.x == 0 && _sucpose.position.y == 0 && _sucpose.position.z == 0) {
+    if (std::abs(_sucpose.position.x) < 0.01 && std::abs(_sucpose.position.y) < 0.01 && std::abs(_sucpose.position.z) < 0.01) {
         RCLCPP_ERROR(this->get_logger(), "Received suction pose at origin");
         return;
     }
@@ -256,13 +256,34 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
     return;
 }
 
+static bool g_shutdown = false;
+
+// Signal handler function
+void signalHandler(int signum) {
+    if (signum == SIGINT) {
+        g_shutdown = true;
+    }
+}
+
 int main(int argc, char * argv[])
 {
+    // Register signal handler
+    signal(SIGINT, signalHandler);
+    
     rclcpp::init(argc, argv);
     rclcpp::executors::MultiThreadedExecutor executor;
     auto perception_manager = std::make_shared<PerceptionManager>();
     executor.add_node(perception_manager);
-    executor.spin();
+    
+    // Spin until shutdown is requested
+    while (rclcpp::ok() && !g_shutdown) {
+        executor.spin_once();
+    }
+    
+    std::cout << "Perception Manager shutting down!!!!" << std::endl;
     rclcpp::shutdown();
+    executor.cancel();
+    executor.remove_node(perception_manager);
+    std::cout << "Perception Manager shutdown complete" << std::endl;
     return 0;
 }
