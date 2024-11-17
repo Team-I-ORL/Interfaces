@@ -276,10 +276,11 @@ int main(int argc, char * argv[])
     executor.add_node(perception_manager);
     
     // Spin until shutdown is requested
-    while (rclcpp::ok() && !g_shutdown) {
-        executor.spin_once();
-    }
-    
+//while (rclcpp::ok() && !g_shutdown) {
+//        executor.spin_once();
+//    }
+    executor.spin();
+
     std::cout << "Perception Manager shutting down!!!!" << std::endl;
     rclcpp::shutdown();
     executor.cancel();
