@@ -19,8 +19,10 @@ public:
     rclcpp::Client<orbiter_bt::srv::GetDropPose>::SharedPtr drop_client;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr update_scene_pub;
     std::string type;
-    bool finished = false;
-    bool success = false;
+    bool suc_finished = false;
+    bool suc_success = false;
+    bool drop_finished = false;
+    bool drop_success = false;
 
     // overides for the BT::StatefulActionNode
     static BT::PortsList providedPorts();

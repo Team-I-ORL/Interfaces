@@ -2,6 +2,7 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 
 #include "orbiter_nav_behaviors.h"
+#include "orbiter_nav_fallback.h"
 // #include "orbiter_moveit_behaviors.h"
 // #include "orbiter_moveit_behaviors_wrapper.h"
 #include "orbiter_moveArmCuRobo.h"
@@ -12,6 +13,7 @@
 // #include "orbiter_vendingMachineActuate.h"
 #include "orbiter_getNextAction.h"
 #include "orbiter_signalFinish.h"
+#include "orbiter_checkAtGoal.h"
 // #include "orbiter_getItemInfo.h"
 // #include "orbiter_getVendingLoc.h"
 // #include "orbiter_checkArmGoal.h"

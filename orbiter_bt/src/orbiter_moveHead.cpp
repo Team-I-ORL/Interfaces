@@ -14,31 +14,31 @@ BT::PortsList MoveHead::providedPorts()
 {
     return {
         BT::InputPort<std::string>("head_goal"),
-        BT::InputPort<std::string>("type"),
         };
 }
 
 BT::NodeStatus MoveHead::onStart()
 {
     auto goal = getInput<std::string>("head_goal");
-    auto type = getInput<std::string>("type");
+
     if (!goal)
     {
         RCLCPP_ERROR(node_->get_logger(), "Missing required input [head_goal]");
         return BT::NodeStatus::FAILURE;
     }
+
     auto request = std::make_shared<orbiter_bt::srv::MoveHead::Request>();
-    if (!type || type.value() == "search")
-    {
-        request->type = true; // default to true
+    
+    if (goal.value() == "search"){
+        request->type = true;
+        request->what = "search";
         RCLCPP_INFO(node_->get_logger(), "Move Head Type: Search");
     }
-    else
-    {
+    else {
         request->type = false;
         RCLCPP_INFO(node_->get_logger(), "Move Head Type: Point");
+        request->what = goal.value();
     }
-    request->what = goal.value();
 
     finished = false;
     move_head_result = false;
@@ -53,7 +53,7 @@ BT::NodeStatus MoveHead::onRunning()
 {   
     RCLCPP_INFO(node_->get_logger(), "Move Head Running!");
     auto time_now = node_->now();
-    if ((time_now - start_time).seconds() > 45)
+    if ((time_now - start_time).seconds() > 100)
     {
         RCLCPP_INFO(node_->get_logger(), "Move Head Timeout!");
         return BT::NodeStatus::FAILURE;

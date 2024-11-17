@@ -19,7 +19,9 @@ BT::PortsList MoveArm_CuRobo::providedPorts()
 }
 
 BT::NodeStatus MoveArm_CuRobo::onStart()
-{
+{   
+    finished = false;
+    move_arm_result = false;
     auto goal = getInput<std::string>("arm_goal");
     if (!goal)
     {
@@ -40,15 +42,16 @@ BT::NodeStatus MoveArm_CuRobo::onStart()
     RCLCPP_INFO(node_->get_logger(), "Traj_Type_Sending %d", traj_type);
     request->traj_type.data = traj_type;
     auto result = client->async_send_request(request, std::bind(&MoveArm_CuRobo::result_callback, this, std::placeholders::_1));
+    RCLCPP_INFO(node_->get_logger(), "Request sent for Arm Pose, waiting for response.");
     start_time = node_->now();
     return BT::NodeStatus::RUNNING;
 }
 
 BT::NodeStatus MoveArm_CuRobo::onRunning()
 {   
-    RCLCPP_INFO(node_->get_logger(), "Move Arm Running!");
+    // RCLCPP_INFO(node_->get_logger(), "Move Arm Running!");
     auto time_now = node_->now();
-    if ((time_now - start_time).seconds() > 40)
+    if ((time_now - start_time).seconds() > 400)
     {
         RCLCPP_INFO(node_->get_logger(), "Move Arm Timeout!");
         return BT::NodeStatus::FAILURE;

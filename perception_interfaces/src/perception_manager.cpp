@@ -62,7 +62,8 @@ PerceptionManager::PerceptionManager() :
 
 void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::GetSucPose::Request> request,
                            std::shared_ptr<orbiter_bt::srv::GetSucPose::Response> response)
-{
+{   
+    _service_count++;
     // Retrieve request information
     std::string item = request->item.data;
     RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request GetSucPose for %s", item.c_str());
@@ -73,7 +74,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling segmentation mask service");
     }
     else if (_color_image.encoding != "rgb8") {
-        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service");
+        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service, is ", _color_image.encoding);
     }
     segmask_request->color_image = _color_image;
     segmask_request->color_image.encoding = "rgb8";
@@ -90,6 +91,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     auto segmask_result = _segmask_client->async_send_request(segmask_request,
          std::bind(&PerceptionManager::_seg_mask_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Segmentation mask service called");
+    _client_count++;
     
     while (rclcpp::ok() && !_segmask_received) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -138,7 +140,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     auto sucpose_result = _sucpose_client->async_send_request(sucpose_request,
          std::bind(&PerceptionManager::_suc_pose_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Suction pose service called");
-
+    _client_count++;
     while (rclcpp::ok() && !_sucpose_received) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         RCLCPP_INFO(this->get_logger(), "Waiting for suction pose service...");
@@ -181,11 +183,14 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     
     _segmask_received = false;
     _sucpose_received = false;
+    _service_count--;
+    RCLCPP_INFO(this->get_logger(), "Service count After _get_suc_pose: %d", _service_count);
 }
 
 void PerceptionManager::_get_drop_pose(const std::shared_ptr<orbiter_bt::srv::GetDropPose::Request> request,
                            std::shared_ptr<orbiter_bt::srv::GetDropPose::Response> response){
     RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request for Drop Pose");
+    _service_count++;
     auto droppose_request = std::make_shared<perception_interfaces::srv::Droppose::Request>();
     droppose_request->color_image = _color_image;
     droppose_request->aruco_id = request->aruco_id;
@@ -201,7 +206,7 @@ void PerceptionManager::_get_drop_pose(const std::shared_ptr<orbiter_bt::srv::Ge
     auto droppose_result = _droppose_client->async_send_request(droppose_request,
          std::bind(&PerceptionManager::_drop_pose_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Drop pose service called");
-
+    _client_count++;
     droppose_result.wait_for(std::chrono::seconds(5));
 
     response->pose = _droppose;
@@ -212,22 +217,35 @@ void PerceptionManager::_get_drop_pose(const std::shared_ptr<orbiter_bt::srv::Ge
     pose_msg.pose = _droppose;
     RCLCPP_INFO(this->get_logger(), "Drop pose published");
     _pose_pub->publish(pose_msg);
+    _service_count--;
+    RCLCPP_INFO(this->get_logger(), "Service count After _get_drop_pose: %d", _service_count);
 }
 
 void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv::FindX::Request> request,
                            std::shared_ptr<perception_interfaces::srv::FindX::Response> response){
 
     RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request Find X...");
+    _service_count++;
     if (request->object == "aruco"){
         RCLCPP_INFO(this->get_logger(), "Finding Aruco in Frame...");
         auto find_aruco_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        if (_color_image.data.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling find aruco in frame service");
+            sleep(1);
+        }
+        else if (_color_image.encoding != "rgb8") {
+            RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling find aruco in frame service");
+            sleep(1);
+        }
+        
         find_aruco_in_frame_request->image = _color_image;
         find_aruco_in_frame_request->id = request->id;
         RCLCPP_INFO(this->get_logger(), "Waiting for find aruco in frame service...");
 
         auto future = _find_aruco_in_frame_client->async_send_request(find_aruco_in_frame_request,
             std::bind(&PerceptionManager::_find_aruco_in_frame_callback, this, std::placeholders::_1));
-        future.wait_for(std::chrono::seconds(15));
+        _client_count++;
+        future.wait_for(std::chrono::seconds(5));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         RCLCPP_INFO(this->get_logger(), "Aruco sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
@@ -237,12 +255,22 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
     else if (request->object == "box"){
         RCLCPP_INFO(this->get_logger(), "Finding Box in Frame...");
         auto find_box_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        if (_color_image.data.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling find box in frame service");
+            sleep(1);
+        }
+        else if (_color_image.encoding != "rgb8") {
+            RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling find box in frame service");
+            sleep(1);
+        }
+        
         find_box_in_frame_request->image = _color_image;
         RCLCPP_INFO(this->get_logger(), "Waiting for find box in frame service...");
 
         auto future = _find_box_in_frame_client->async_send_request(find_box_in_frame_request,
             std::bind(&PerceptionManager::_find_box_in_frame_callback, this, std::placeholders::_1));
-        future.wait_for(std::chrono::seconds(15));
+        _client_count++;
+        future.wait_for(std::chrono::seconds(5));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         RCLCPP_INFO(this->get_logger(), "Box sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
@@ -253,6 +281,7 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
     else{
         RCLCPP_ERROR(this->get_logger(), "Unknown object type");
     }
+    _service_count--;
     return;
 }
 
@@ -281,6 +310,8 @@ int main(int argc, char * argv[])
 //    }
     executor.spin();
 
+    // executor.spin();
+    
     std::cout << "Perception Manager shutting down!!!!" << std::endl;
     rclcpp::shutdown();
     executor.cancel();

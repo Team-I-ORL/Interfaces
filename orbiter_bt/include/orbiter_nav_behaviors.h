@@ -11,6 +11,8 @@
 #include <sstream>
 #include <algorithm>
 #include "bt_string_serialize.h"
+#include "std_msgs/msg/bool.hpp"
+
 class GoToPose : public BT::StatefulActionNode // using async action
 {
 public:
@@ -23,6 +25,7 @@ public:
     
     rclcpp::Node::SharedPtr node_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr action_client_; 
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr moved_pub;
 
     // overides for the BT::StatefulActionNode
     static BT::PortsList providedPorts();

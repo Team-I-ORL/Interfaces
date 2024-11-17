@@ -36,6 +36,13 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GoToPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<GoToPose>("GoToPose", builder);
+
+    RCLCPP_INFO(get_logger(), "NavFallback creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<NavFallback>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<NavFallback>("NavFallback", builder);
     
     // builder = 
     //     [=](const std::string &name, const BT::NodeConfiguration &config) {
@@ -63,6 +70,13 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<GetItemPose>(name, config, shared_from_this());
     };
     factory.registerBuilder<GetItemPose>("getItemPose", builder);
+
+    RCLCPP_INFO(get_logger(), "checkAtGoal creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<CheckAtGoal>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<CheckAtGoal>("checkAtGoal", builder);
 
     // RCLCPP_INFO(get_logger(), "getDropPose creating");
     // builder = 
@@ -92,7 +106,7 @@ void OrbiterBTNode::creatBT()
     // };
     // factory.registerBuilder<arucoArmPose>("arucoArmPose", builder);
 
-    RCLCPP_INFO(get_logger(), "checkArmGoal creating");
+    // RCLCPP_INFO(get_logger(), "checkArmGoal creating");
     // builder = 
     //     [=](const std::string &name, const BT::NodeConfiguration &config) {
     //     return std::make_unique<checkArmGoal>(name, config, shared_from_this());
@@ -200,5 +214,6 @@ int main(int argc, char *argv[])
     executor.add_node(node);
     executor.spin();
     rclcpp::shutdown();
+    std::cout << "OrbiterBTNode shutted down" << std::endl;
     return 0;
 }

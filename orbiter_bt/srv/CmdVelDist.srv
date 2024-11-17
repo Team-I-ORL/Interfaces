@@ -1,0 +1,4 @@
+float32 fwd_dist
+float32 spin_dist
+---
+bool success

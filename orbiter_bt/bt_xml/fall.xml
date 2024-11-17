@@ -3,15 +3,17 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Action ID="getNextAction" next_action="{next_action}" itemname="{itemname}"/>
-            <SetBlackboard output_key="next_action" value="restocking" />
-            <Switch3 case_1="restocking" case_2="retrieval" case_3="wait" variable="{next_action}">
+            <Action ID="getNextAction" next_action="{next_action}" itemname="{itemname}" aruco_id="{arucoID}"/>
+            <Switch3 case_1="Restocking" case_2="Retrieval" case_3="Wait" variable="{next_action}">
                 <Fallback>
-                    <SubTree ID="restocking_pipeline"/>
+                    <SubTree ID="restocking_pipeline" item="{itemname}"
+                                                      aruco="{arucoID}"/>
                     <Action ID="signalRestockingFinished" itemname="{itemname}"/>
-                    <SetBlackboard output_key="next_action" value="wait" />
+                    <SetBlackboard output_key="itemname" value="" />
+                    <SetBlackboard output_key="arucoID" value="" />
+                    <SetBlackboard output_key="next_action" value="Wait" />
                 </Fallback>
-                <SubTree ID="retrieval_pipeline"/>
+                <SubTree ID="retrieval_pipeline" item="{itemname}" aruco="{arucoID}"/>
                 <AlwaysSuccess/>
                 <AlwaysFailure/>
             </Switch3>
@@ -20,31 +22,48 @@
     <!-- ////////// -->
     <BehaviorTree ID="restocking_pipeline">
         <Sequence>
-            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Fallback>
+                <Condition ID="checkAtGoal" nav_goal="-8.1511,8.7678"/>
+                <Action ID="GoToPose" nav_goal="-8.1511,8.7678" yaw="180"/>
+            </Fallback>
             <Sequence>
-                <Action ID="moveHead" head_goal="aruco" name="move head to aruco"/>
-                <Action ID="getItemPose" itemName="1" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
+                <Action ID="moveHead" head_goal="search"/>
                 <Action ID="moveHead" head_goal="box" name="move head to box"/>
-                <Action ID="getItemPose" itemName="default" name="get box pose" pose="{box_pose}" type="suc"/>
+                <SetBlackboard output_key="item" value="obj1"/>
+                <SetBlackboard output_key="aruco" value="aruco1"/>
+                <Action ID="getItemPose" itemname="{item}" name="get box pose" pose="{box_pose}" type="suc"/>
+                <Action ID="getItemPose" itemname="{aruco}" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
+                <!-- <Action ID="NavFallback" type="aruco" pose="{aruco_pose}" fwd_dist="1.0"/> -->
             </Sequence>
+
             <Sequence>
                 <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="0"/>
                 <Action ID="suctionCmd" cmd="1"/>
                 <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="1"/>
+
                 <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="2"/>
-                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="3"/>
+
+                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="0"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="3"/> 
+
                 <Action ID="suctionCmd" cmd="0"/>
+                
                 <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="4"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="7"/>
             </Sequence>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <BehaviorTree ID="retrieval_pipeline">
         <Sequence>
-            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Fallback>
+                <Condition ID="checkAtGoal" nav_goal="-6.29472,5.16153"/>
+                <Action ID="GoToPose" nav_goal="-6.29472,5.16153" yaw="-13"/>
+            </Fallback>
             <Sequence>
-                <Action ID="moveHead" head_goal="aruco2"/>
-                <Action ID="getItemPose" itemName="default" pose="{suction_pose}" type="suc"/>
+                <Action ID="moveHead" head_goal="{aruco}"/>
+                <Action ID="getItemPose" itemname="{item}" pose="{suction_pose}" type="suc"/>
+                <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="-1"/>
             </Sequence>
             <Sequence>
                 <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="0"/>
@@ -53,12 +72,20 @@
                 <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="4"/>
                 <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="7"/>
             </Sequence>
-            <Action ID="GoToPose" nav_goal="" yaw=""/>
+            <Action ID="GoToPose" nav_goal="-8.1511,8.7678" yaw="180"/>
             <Action ID="suctionCmd" cmd="0"/>
         </Sequence>
     </BehaviorTree>
     <!-- ////////// -->
     <TreeNodesModel>
+        <SubTree ID="restocking_pipeline">
+            <input_port name="item"/>
+            <input_port name="aruco"/>
+        </SubTree>
+        <SubTree ID="retrieval_pipeline">
+            <input_port name="item"/>
+            <input_port name="aruco"/>
+        </SubTree>
         <Action ID="GoToPose">
             <inout_port name="nav_goal"/>
             <inout_port name="yaw"/>
@@ -68,13 +95,14 @@
             <inout_port name="traj_type"/>
         </Action>
         <Action ID="getItemPose">
-            <inout_port name="itemName"/>
-            <inout_port name="pose"/>
-            <inout_port name="type"/>
+            <input_port name="itemname"/>
+            <output_port name="pose"/>
+            <input_port name="type"/>
         </Action>
         <Action ID="getNextAction">
-            <inout_port default="restocking" name="next"/>
-            <inout_port name="itemname"/>
+            <output_port name="next_action"/>
+            <output_port name="itemname"/>
+            <output_port name="arucoID"/>
         </Action>
         <Action ID="moveHead">
             <inout_port name="head_goal"/>
