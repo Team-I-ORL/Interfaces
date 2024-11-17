@@ -229,6 +229,15 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
     if (request->object == "aruco"){
         RCLCPP_INFO(this->get_logger(), "Finding Aruco in Frame...");
         auto find_aruco_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        if (_color_image.data.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling find aruco in frame service");
+            sleep(1);
+        }
+        else if (_color_image.encoding != "rgb8") {
+            RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling find aruco in frame service");
+            sleep(1);
+        }
+        
         find_aruco_in_frame_request->image = _color_image;
         find_aruco_in_frame_request->id = request->id;
         RCLCPP_INFO(this->get_logger(), "Waiting for find aruco in frame service...");
@@ -246,6 +255,15 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
     else if (request->object == "box"){
         RCLCPP_INFO(this->get_logger(), "Finding Box in Frame...");
         auto find_box_in_frame_request = std::make_shared<perception_interfaces::srv::FindObjInFrame::Request>();
+        if (_color_image.data.empty()) {
+            RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling find box in frame service");
+            sleep(1);
+        }
+        else if (_color_image.encoding != "rgb8") {
+            RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling find box in frame service");
+            sleep(1);
+        }
+        
         find_box_in_frame_request->image = _color_image;
         RCLCPP_INFO(this->get_logger(), "Waiting for find box in frame service...");
 

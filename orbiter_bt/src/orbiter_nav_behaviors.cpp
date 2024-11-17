@@ -9,6 +9,7 @@ GoToPose::GoToPose(const std::string &name,
 {
     RCLCPP_INFO(node_->get_logger(), "GoToPose has been created.");
     action_client_ = rclcpp_action::create_client<NavigateToPose>(node_, "/navigate_to_pose");
+    moved_pub = node_->create_publisher<std_msgs::msg::Bool>("moved", 5);
     nav_done_flag = false;
 }
 
@@ -39,6 +40,9 @@ BT::NodeStatus GoToPose::onStart()
     double theta = std::stod(yaw.value());
     theta = theta / 180 * M_PI;
     
+    std_msgs::msg::Bool msg;
+    msg.data = true;
+    moved_pub->publish(msg);
 
     // Send goal to action server
     auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();

@@ -4,7 +4,7 @@ import rclpy
 from orbiter_bt.srv import Suck
 from std_msgs.msg import Bool
 import os
-
+# ros2 service call /suction_command orbiter_bt/srv/Suck "{command: true}"
 class Sucker(Node):
     def __init__(self, serial_port='/dev/ttyUSB0', id=9):
         super().__init__('sucker')

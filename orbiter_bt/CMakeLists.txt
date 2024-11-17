@@ -41,6 +41,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetDropPose.srv"
   "srv/NextAction.srv"
   "srv/MoveCam.srv"
+  "srv/CmdVelDist.srv"
   DEPENDENCIES std_msgs geometry_msgs sensor_msgs
 )
 
@@ -67,6 +68,8 @@ src/orbiter_moveHead.cpp
 src/orbiter_suck.cpp
 src/orbiter_getNextAction.cpp
 src/orbiter_signalFinish.cpp
+src/orbiter_checkAtGoal.cpp
+src/orbiter_nav_fallback.cpp
 )
 
 set(TARGET_DEPENDS

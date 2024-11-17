@@ -14,7 +14,20 @@ class GetNextAction : public BT::StatefulActionNode // using async action
         rclcpp::Node::SharedPtr node_;
         rclcpp::Client<orbiter_bt::srv::NextAction>::SharedPtr client;
         bool finished = false;
+        bool success = false;
         void result_callback(rclcpp::Client<orbiter_bt::srv::NextAction>::SharedFuture result);
+
+        const std::unordered_map<std::string, std::string> item_to_aruco_id_restock= {
+            {"obj1", "aruco1"},
+            {"obj2", "aruco2"},
+            {"obj3", "aruco3"}
+        };
+
+        const std::unordered_map<std::string, std::string> item_to_aruco_id_retrieve = {
+            {"obj1", "aruco3"},
+            {"obj2", "aruco3"},
+            {"obj3", "aruco3"}
+        };
 
         // overides for the BT::StatefulActionNode
         static BT::PortsList providedPorts();
