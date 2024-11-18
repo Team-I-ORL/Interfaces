@@ -64,6 +64,8 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
                            std::shared_ptr<orbiter_bt::srv::GetSucPose::Response> response)
 {   
     _service_count++;
+    _segmask_received = false;
+    _sucpose_received = false;
     // Retrieve request information
     std::string item = request->item.data;
     RCLCPP_INFO(this->get_logger(), "Perception Manager Got Request GetSucPose for %s", item.c_str());
@@ -97,8 +99,8 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         RCLCPP_INFO(this->get_logger(), "Waiting for segmentation mask service...");
     }
-    // segmask_result.wait_for(std::chrono::seconds(5));
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    segmask_result.wait_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // Call suc pose service
     auto sucpose_request = std::make_shared<perception_interfaces::srv::Sucpose::Request>();
@@ -145,7 +147,8 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         RCLCPP_INFO(this->get_logger(), "Waiting for suction pose service...");
     }
-    // sucpose_result.wait();
+    segmask_result.wait_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     if (std::abs(_sucpose.position.x) < 0.01 && std::abs(_sucpose.position.y) < 0.01 && std::abs(_sucpose.position.z) < 0.01) {
         RCLCPP_ERROR(this->get_logger(), "Received suction pose at origin");
