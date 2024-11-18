@@ -76,7 +76,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
         RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling segmentation mask service");
     }
     else if (_color_image.encoding != "rgb8") {
-        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service, is ", _color_image.encoding);
+        RCLCPP_ERROR(this->get_logger(), "Color image encoding is not rgb8 while calling segmentation mask service, is %s", _color_image.encoding.c_str());
     }
     segmask_request->color_image = _color_image;
     segmask_request->color_image.encoding = "rgb8";

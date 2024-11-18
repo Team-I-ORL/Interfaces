@@ -53,13 +53,10 @@ BT::NodeStatus GetItemPose::onStart()
         auto result = suc_client->async_send_request(request, std::bind(&GetItemPose::suc_result_callback, this, std::placeholders::_1));
         RCLCPP_INFO(node_->get_logger(), "Request sent for Suction Pose, waiting for response.");
 
-<<<<<<< HEAD
         // std_msgs::msg::Bool msg;
         // msg.data = false;
-=======
         std_msgs::msg::Bool msg;
         msg.data = false;
->>>>>>> 27767336c3852c76f8cfa4b15286c758cdb4f343
         // update_scene_pub->publish(msg);
     }
     else if (type == "drop"){
@@ -75,13 +72,10 @@ BT::NodeStatus GetItemPose::onStart()
         auto result = drop_client->async_send_request(request, std::bind(&GetItemPose::drop_result_callback, this, std::placeholders::_1));
         RCLCPP_INFO(node_->get_logger(), "Request sent for Drop Pose, waiting for response.");
 
-<<<<<<< HEAD
         // std_msgs::msg::Bool msg;
         // msg.data = true;
-=======
         std_msgs::msg::Bool msg;
         msg.data = true;
->>>>>>> 27767336c3852c76f8cfa4b15286c758cdb4f343
         // update_scene_pub->publish(msg);
     }
     else{
