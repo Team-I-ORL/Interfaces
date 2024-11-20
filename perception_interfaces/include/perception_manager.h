@@ -77,11 +77,17 @@ class PerceptionManager : public rclcpp::Node
             RCLCPP_INFO(this->get_logger(), "Client count After _drop_pose_callback: %d", _client_count);
         }
 
-        void _find_aruco_in_frame_callback(rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response){
-            RCLCPP_INFO(this->get_logger(), "Find Aruco in frame service received");
-            _obj_frame_x = response.get()->x;
-            _obj_frame_y = response.get()->y;
-            RCLCPP_INFO(this->get_logger(), "Aruco found at %d %d", _obj_frame_x, _obj_frame_y);
+        std::unordered_map<int, std::pair<int, int>> _frame_coords; 
+        void _find_aruco_in_frame_callback(
+            rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response, int id) {
+            RCLCPP_INFO(this->get_logger(), "Find Aruco in frame service received for ID %d", id);
+            int x = response.get()->x;
+            int y = response.get()->y;
+
+            std::lock_guard<std::mutex> lock(_frame_coords_mutex);
+            _frame_coords[id] = std::make_pair(x, y);
+
+            RCLCPP_INFO(this->get_logger(), "Aruco %d found at %d %d", id, x, y);
             _client_count--;
             RCLCPP_INFO(this->get_logger(), "Client count After _find_aruco_in_frame_callback: %d", _client_count);
         }
@@ -148,5 +154,7 @@ class PerceptionManager : public rclcpp::Node
                            std::shared_ptr<perception_interfaces::srv::FindX::Response> response);
     public:
         PerceptionManager();
+    private:
+        std::mutex _frame_coords_mutex;
 
 };

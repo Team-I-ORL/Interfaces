@@ -103,6 +103,7 @@ void PerceptionManager::_get_suc_pose(const std::shared_ptr<orbiter_bt::srv::Get
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // Call suc pose service
+    _segmask_received = false;
     auto sucpose_request = std::make_shared<perception_interfaces::srv::Sucpose::Request>();
     if (_color_image.data.empty()) {
         RCLCPP_ERROR(this->get_logger(), "Color image is empty while calling suc pose service");
@@ -245,15 +246,25 @@ void PerceptionManager::_find_x(const std::shared_ptr<perception_interfaces::srv
         find_aruco_in_frame_request->id = request->id;
         RCLCPP_INFO(this->get_logger(), "Waiting for find aruco in frame service...");
 
-        auto future = _find_aruco_in_frame_client->async_send_request(find_aruco_in_frame_request,
-            std::bind(&PerceptionManager::_find_aruco_in_frame_callback, this, std::placeholders::_1));
-        _client_count++;
+        auto future = _find_aruco_in_frame_client->async_send_request(
+            find_aruco_in_frame_request,
+            [this, id = find_aruco_in_frame_request->id](rclcpp::Client<perception_interfaces::srv::FindObjInFrame>::SharedFuture response) {
+                this->_find_aruco_in_frame_callback(response, id);
+            });
+            _client_count++;
         future.wait_for(std::chrono::seconds(5));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         RCLCPP_INFO(this->get_logger(), "Aruco sending Find X at %d %d", _obj_frame_x, _obj_frame_y);
-        response->x = _obj_frame_x;
-        response->y = _obj_frame_y;
+        if (_frame_coords.find(request->id) == _frame_coords.end()){
+            RCLCPP_ERROR(this->get_logger(), "_frame_coords does not contain id %d, defaulting response to -1, -1", request->id);
+            response->x = -1;
+            response->y = -1;
+        }
+        else{
+            response->x = _frame_coords[request->id].first;
+            response->y = _frame_coords[request->id].second;
+        }
     }
     else if (request->object == "box"){
         RCLCPP_INFO(this->get_logger(), "Finding Box in Frame...");

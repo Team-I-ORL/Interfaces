@@ -1,7 +1,7 @@
 #include "orbiter_bt_node.h"
 
-const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orbiter_bt") + "/bt_xml" + "/fall.xml";
-
+// const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orbiter_bt") + "/bt_xml" + "/fall_2.xml";
+const std::string bt_xml_dir = "/home/siddharth/fall_ws/src/Interfaces/orbiter_bt/bt_xml/fall_2.xml";
 OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 {
     RCLCPP_INFO(get_logger(), "OrbiterBTNode has been created.");

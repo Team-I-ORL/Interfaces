@@ -20,13 +20,14 @@ class GetNextAction : public BT::StatefulActionNode // using async action
         const std::unordered_map<std::string, std::string> item_to_aruco_id_restock= {
             {"obj1", "aruco1"},
             {"obj2", "aruco2"},
-            {"obj3", "aruco3"}
+            // {"obj3", "aruco3"}
         };
 
         const std::unordered_map<std::string, std::string> item_to_aruco_id_retrieve = {
-            {"obj1", "aruco3"},
-            {"obj2", "aruco3"},
+            {"obj1", "aruco5"},
+            {"obj2", "aruco4"},
             {"obj3", "aruco3"}
+            
         };
 
         // overides for the BT::StatefulActionNode
