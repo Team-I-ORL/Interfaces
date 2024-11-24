@@ -16,6 +16,9 @@ from PIL import Image, ImageTk
 import subprocess
 import threading
 from tkinter import scrolledtext
+import signal
+import sys
+
 
 class TaskManagerNode(Node):
     def __init__(self, task_queue, lock):
@@ -99,6 +102,13 @@ class GUIApp:
 
         # Update GUI periodically
         self.update_gui()
+
+        self.auto_scroll = True
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # Set up SIGINT handler for Ctrl+C
+        signal.signal(signal.SIGINT, self.handle_sigint)
         
     def start_external_process(self):
         def run_process():
@@ -107,7 +117,7 @@ class GUIApp:
                 "source ../../install/setup.bash && "
                 "ros2 run orbiter_bt orbiter_bt_node"
             )
-            process = subprocess.Popen(
+            self.process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -116,16 +126,27 @@ class GUIApp:
                 shell=True,
                 executable='/bin/bash'
             )
-            for line in process.stdout:
+            for line in self.process.stdout:
                 self.append_output(line)
 
-            process.wait()
+            self.process.wait()
 
         threading.Thread(target=run_process, daemon=True).start()
+
+    def on_closing(self):
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+            self.process.wait()
+        self.root.destroy()
+
+    def handle_sigint(self, signum, frame):
+        self.on_closing()
+        sys.exit(0)
     
     def append_output(self, text):
         self.output_text.insert(tk.END, text)
-        self.output_text.see(tk.END)
+        if self.auto_scroll:
+            self.output_text.see(tk.END)
 
     def add_header_image(self, image_path, max_width=200, max_height=100, parent=None):
         if parent is None:
@@ -164,8 +185,8 @@ class GUIApp:
 
         tk.Label(frame, text="Retrieval", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=3)
 
-        objects = ["obj1", "obj2", "obj3"]
-        names = ["Gloves", "Masks", "Sterile Water"]
+        objects = ["obj1", "obj2", "obj4"]
+        names = ["Gloves", "Masks", "Isopropyl Alcohol"]
         for idx, obj in enumerate(objects):
             tk.Button(frame, text=names[idx], command=lambda o=obj: self.add_retrieval_task(o),
                       bg='#2C3E50', fg='white', width=12).grid(row=1, column=idx, padx=5, pady=5)
@@ -181,6 +202,14 @@ class GUIApp:
         self.queue_listbox = tk.Listbox(frame, width=40)
         self.queue_listbox.pack()
 
+        # Add Clear Queue button
+        tk.Button(frame, text="Clear Queue", command=self.clear_queue, bg='#E74C3C', fg='white').pack(pady=5)
+    
+    def clear_queue(self):
+        with self.lock:
+            self.task_queue.clear()
+        self.update_gui()
+
     def create_terminal_output_display(self, parent=None):
         if parent is None:
             parent = self.root
@@ -191,6 +220,16 @@ class GUIApp:
 
         self.output_text = scrolledtext.ScrolledText(frame, width=100, height=30)
         self.output_text.pack()
+
+        self.toggle_scroll_button = tk.Button(frame, text="Disable Scrolling", command=self.toggle_auto_scroll)
+        self.toggle_scroll_button.pack(pady=5)
+
+    def toggle_auto_scroll(self):
+        self.auto_scroll = not self.auto_scroll
+        if self.auto_scroll:
+            self.toggle_scroll_button.config(text="Disable Scrolling")
+        else:
+            self.toggle_scroll_button.config(text="Enable Scrolling")
 
     def add_restocking_tasks(self, item):
         quantity = self.restock_quantity_scale.get()
@@ -203,7 +242,7 @@ class GUIApp:
             self.task_queue.appendleft({'type': 'Retrieval', 'item': item})
 
     def update_gui(self):
-        item_to_name = {"obj1": "Gloves", "obj2": "Masks", "obj3": "Sterile Water"}
+        item_to_name = {"obj1": "Gloves", "obj2": "Masks", "obj4": "Isopropyl Alcohol"}
         with self.lock:
             self.queue_listbox.delete(0, tk.END)
             for task in self.task_queue:
@@ -224,4 +263,7 @@ class GUIApp:
 if __name__ == '__main__':
     root = tk.Tk()
     app = GUIApp(root)
-    root.mainloop()
+    try:
+        root.mainloop()
+    except KeyboardInterrupt:
+        app.on_closing()
