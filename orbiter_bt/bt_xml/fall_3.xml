@@ -3,102 +3,269 @@
     <!-- ////////// -->
     <BehaviorTree ID="BehaviorTree">
         <Sequence>
-            <Action ID="getNextAction" next_action="{next_action}" itemname="{itemname}" aruco_id="{arucoID}"/>
+            <Action ID="getNextAction" aruco_id="{arucoID}" itemname="{itemname}" next_action="{next_action}"/>
             <Switch3 case_1="Restocking" case_2="Retrieval" case_3="Wait" variable="{next_action}">
-                <!-- Restocking -->
                 <Fallback>
                     <Sequence>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="-2"/>
+                        </RetryUntilSuccessful>
                         <Fallback>
-                            <Condition ID="checkAtGoal" nav_goal="-7.8782,8.7025"/>
+                            <Condition ID="checkAtGoal" nav_goal="-1.0226,-0.22751"/>
                             <Fallback>
-                                <Action ID="GoToPose" nav_goal="-7.8782,8.7025" yaw="180"/>
+                                <Action ID="GoToPose" nav_goal="-1.0226,-0.22751" yaw="275"/>
                                 <Sequence>
-                                    <Action ID="GoToPose" nav_goal="-7.422,8.74" yaw="180"/>
+                                    <Action ID="GoToPose" nav_goal="-1.0577,0.20001" yaw="275"/>
                                     <Action ID="moveHead" head_goal="aruco3"/>
                                     <Action ID="getItemPose" itemname="aruco3" pose="{aruco_pose}" type="drop"/>
-                                    <Action ID="NavFallback" type="aruco" pose="{aruco_pose}" fwd_dist="0.8"/>
+                                    <Action ID="NavFallback" fwd_dist="0.8" pose="{aruco_pose}" type="aruco"/>
                                 </Sequence>
                             </Fallback>
                         </Fallback>
                         <Sequence>
                             <Action ID="moveHead" head_goal="search"/>
-                            <Action ID="moveHead" head_goal="box" name="move head to box"/>
-                            <Action ID="getItemPose" itemname="{itemname}" name="get box pose" pose="{box_pose}" type="suc"/>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Fallback>
+                                    <Action ID="moveHead" head_goal="{arucoID}"/>
+                                    <Sequence>
+                                        <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                                        <Action ID="moveHead" head_goal="{arucoID}"/>
+                                    </Sequence>
+                                </Fallback>
+                            </RetryUntilSuccessful>
                             <Action ID="getItemPose" itemname="{arucoID}" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
                         </Sequence>
-                        <RetryUntilSuccessful num_attempts="1">
-                            <Sequence>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="7"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="8"/>
-
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="10"/>
-
-                                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="0"/>
-
-                                <Action ID="suctionCmd" cmd="1"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="1"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="2"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="9"/>
-                                
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="0"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="3"/> 
-                                <Action ID="suctionCmd" cmd="0"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="4"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="9"/>
-                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="8"/>
-                            </Sequence>
-                        </RetryUntilSuccessful>
+                        <SetBlackboard output_key="retryVal" value="10"/>
+                        <Sequence>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Fallback>
+                                    <Sequence>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Fallback>
+                                                <Action ID="moveHead" head_goal="box" name="move head to box"/>
+                                                <Sequence>
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                                                    <Action ID="moveHead" head_goal="box" name="move head to box"/>
+                                                </Sequence>
+                                            </Fallback>
+                                        </RetryUntilSuccessful>
+                                        <Action ID="getItemPose" itemname="{itemname}" name="get box pose" pose="{box_pose}" type="suc"/>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="8"/>
+                                        </RetryUntilSuccessful>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="0"/>
+                                        </RetryUntilSuccessful>
+                                        <Action ID="suctionCmd" cmd="1"/>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="1"/>
+                                        </RetryUntilSuccessful>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="13"/>
+                                        </RetryUntilSuccessful>
+                                        <Condition ID="checkSucked"/>
+                                    </Sequence>
+                                    <Sequence>
+                                        <RetryUntilSuccessful num_attempts="3">
+                                            <Action ID="MoveArm_CuRobo" arm_goal="{box_pose}" traj_type="13"/>
+                                        </RetryUntilSuccessful>
+                                        <Action ID="suctionCmd" cmd="0"/>
+                                        <AlwaysFailure/>
+                                    </Sequence>
+                                </Fallback>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="13"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="11"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="12"/>
+                            </RetryUntilSuccessful>
+                            <Action ID="suctionCmd" cmd="0"/>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="13"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="13"/>
+                            </RetryUntilSuccessful>
+                        </Sequence>
                     </Sequence>
                     <Sequence>
                         <Action ID="suctionCmd" cmd="0"/>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="8"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                        </RetryUntilSuccessful>
                         <Action ID="signalRestockingFinished" itemname="{itemname}"/>
-                        <SetBlackboard output_key="itemname" value="" />
-                        <SetBlackboard output_key="arucoID" value="" />
-                        <SetBlackboard output_key="next_action" value="Wait" />
+                        <SetBlackboard output_key="itemname" value=""/>
+                        <SetBlackboard output_key="arucoID" value=""/>
+                        <SetBlackboard output_key="next_action" value="Wait"/>
                     </Sequence>
                 </Fallback>
-                <!-- __________________________________Retrieval____________________________________________ -->
-                <Sequence>
-                    <Fallback>
-                        <Condition ID="checkAtGoal" nav_goal="-8.1511,8.7678"/>
-                        <Action ID="GoToPose" nav_goal="-8.1511,8.7678" yaw="-13"/>
-                    </Fallback>
+                <Fallback>
                     <Sequence>
-
-                        <!-- <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="-1"/> -->
-                        <Action ID="moveHead" head_goal="search"/>
-                        <SetBlackboard output_key="arucoID" value="aruco3"/>
-                        <Action ID="moveHead" head_goal="{arucoID}"/>
-                        <Action ID="getItemPose" itemname="{itemname}" pose="{suction_pose}" type="suc"/>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Sequence>
+                                <Fallback>
+                                    <Condition ID="checkAtGoal" nav_goal="-1.0226,-0.22751"/>
+                                    <Fallback>
+                                        <Action ID="GoToPose" nav_goal="-1.0226,-0.22751" yaw="275"/>
+                                        <Sequence>
+                                            <Action ID="GoToPose" nav_goal="-1.0577,0.20001" yaw="275"/>
+                                            <Action ID="moveHead" head_goal="aruco7"/>
+                                            <Action ID="getItemPose" itemname="aruco7" pose="{aruco_pose}" type="drop"/>
+                                            <Action ID="NavFallback" fwd_dist="1.0" pose="{aruco_pose}" type="aruco"/>
+                                        </Sequence>
+                                    </Fallback>
+                                </Fallback>
+                                <RetryUntilSuccessful num_attempts="3">
+                                    <Sequence>
+                                        <Sequence>
+                                            <RetryUntilSuccessful num_attempts="3">
+                                                <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                                            </RetryUntilSuccessful>
+                                            <Action ID="moveHead" head_goal="search"/>
+                                            <RetryUntilSuccessful num_attempts="3">
+                                                <Fallback>
+                                                    <Action ID="moveHead" head_goal="{arucoID}"/>
+                                                    <Sequence>
+                                                        <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                                                        <Action ID="moveHead" head_goal="{arucoID}"/>
+                                                    </Sequence>
+                                                </Fallback>
+                                            </RetryUntilSuccessful>
+                                            <Action ID="getItemPose" itemname="{itemname}" pose="{suction_pose}" type="suc"/>
+                                        </Sequence>
+                                        <Fallback>
+                                            <Sequence>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="8"/>
+                                                </RetryUntilSuccessful>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="0"/>
+                                                </RetryUntilSuccessful>
+                                                <Action ID="suctionCmd" cmd="1"/>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="3"/>
+                                                </RetryUntilSuccessful>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="13"/>
+                                                </RetryUntilSuccessful>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="13"/>
+                                                </RetryUntilSuccessful>
+                                                <RetryUntilSuccessful num_attempts="3">
+                                                    <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="14"/>
+                                                </RetryUntilSuccessful>
+                                                <Condition ID="checkSucked"/>
+                                            </Sequence>
+                                            <Sequence>
+                                                <Action ID="suctionCmd" cmd="0"/>
+                                                <AlwaysFailure/>
+                                            </Sequence>
+                                        </Fallback>
+                                    </Sequence>
+                                </RetryUntilSuccessful>
+                                <Fallback>
+                                    <ReactiveSequence>
+                                        <Condition ID="checkSucked"/>
+                                        <Action ID="GoToPose" nav_goal="1.9491,2.5495" yaw="90"/>
+                                    </ReactiveSequence>
+                                    <Sequence>
+                                        <Action ID="suctionCmd" cmd="0"/>
+                                        <AlwaysFailure/>
+                                    </Sequence>
+                                </Fallback>
+                            </Sequence>
+                        </RetryUntilSuccessful>
+                        <Action ID="moveHead" head_goal="aruco7"/>
+                        <Action ID="getItemPose" itemname="aruco7" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
+                        <Sequence>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="8"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="11"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="12"/>
+                            </RetryUntilSuccessful>
+                            <Action ID="suctionCmd" cmd="0"/>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="13"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="13"/>
+                            </RetryUntilSuccessful>
+                            <RetryUntilSuccessful num_attempts="3">
+                                <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                            </RetryUntilSuccessful>
+                        </Sequence>
                     </Sequence>
                     <Sequence>
-                        <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="0"/>
-                        <!-- <Action ID="suctionCmd" cmd="1"/> -->
-                        <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="3"/>
-                        <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="4"/>
-                        <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="8"/>
-                        <Action ID="MoveArm_CuRobo" arm_goal="{suction_pose}" traj_type="-2"/>
-
+                        <Action ID="suctionCmd" cmd="0"/>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="8"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                        </RetryUntilSuccessful>
+                        <RetryUntilSuccessful num_attempts="3">
+                            <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="-2"/>
+                        </RetryUntilSuccessful>
+                        <Action ID="signalRestockingFinished" itemname="{itemname}"/>
+                        <SetBlackboard output_key="itemname" value=""/>
+                        <SetBlackboard output_key="arucoID" value=""/>
+                        <SetBlackboard output_key="next_action" value="Wait"/>
                     </Sequence>
-                    <Action ID="GoToPose" nav_goal="-6.29472,5.16153" yaw="-13"/>
-
-                    <Action ID="getItemPose" itemname="{arucoID}" name="get aruco pose" pose="{aruco_pose}" type="drop"/>
-
-                    <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="0"/>
-                    <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="3"/>
-                    <!-- <Action ID="suctionCmd" cmd="0"/> -->
-
-                    <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="4"/>
-                    <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="8"/>
-
-                    <Action ID="MoveArm_CuRobo" arm_goal="{aruco_pose}" traj_type="7"/>
-
-                </Sequence>
-                <!-- Wait -->
+                </Fallback>
                 <AlwaysSuccess/>
-                <!-- Other -->
                 <AlwaysFailure/>
             </Switch3>
         </Sequence>
     </BehaviorTree>
+    <!-- ////////// -->
+    <TreeNodesModel>
+        <Action ID="GoToPose">
+            <inout_port name="nav_goal"/>
+            <inout_port name="yaw"/>
+        </Action>
+        <Action ID="MoveArm_CuRobo">
+            <inout_port name="arm_goal"/>
+            <inout_port name="traj_type"/>
+        </Action>
+        <Action ID="NavFallback">
+            <inout_port name="fwd_dist"/>
+            <inout_port name="pose"/>
+            <inout_port name="type"/>
+        </Action>
+        <Condition ID="checkAtGoal">
+            <inout_port name="nav_goal"/>
+        </Condition>
+        <Condition ID="checkSucked"/>
+        <Action ID="getItemPose">
+            <inout_port name="itemname"/>
+            <inout_port name="pose"/>
+            <inout_port name="type"/>
+        </Action>
+        <Action ID="getNextAction">
+            <inout_port name="aruco_id"/>
+            <inout_port name="itemname"/>
+            <inout_port name="next_action"/>
+        </Action>
+        <Action ID="moveHead">
+            <inout_port name="head_goal"/>
+        </Action>
+        <Action ID="signalRestockingFinished">
+            <inout_port name="itemname"/>
+        </Action>
+        <Action ID="suctionCmd">
+            <inout_port name="cmd"/>
+        </Action>
+    </TreeNodesModel>
+    <!-- ////////// -->
 </root>
