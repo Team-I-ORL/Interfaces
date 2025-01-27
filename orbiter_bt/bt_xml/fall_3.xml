@@ -16,9 +16,9 @@
                                 <Action ID="GoToPose" nav_goal="-1.0226,-0.22751" yaw="275"/>
                                 <Sequence>
                                     <Action ID="GoToPose" nav_goal="-1.0577,0.20001" yaw="275"/>
-                                    <Action ID="moveHead" head_goal="aruco3"/>
-                                    <Action ID="getItemPose" itemname="aruco3" pose="{aruco_pose}" type="drop"/>
-                                    <Action ID="NavFallback" fwd_dist="0.8" pose="{aruco_pose}" type="aruco"/>
+                                    <Action ID="moveHead" head_goal="aruco7"/>
+                                    <!-- <Action ID="getItemPose" itemname="aruco3" pose="{aruco_pose}" type="drop"/>
+                                    <Action ID="NavFallback" fwd_dist="0.85" pose="{aruco_pose}" type="aruco"/> -->
                                 </Sequence>
                             </Fallback>
                         </Fallback>
@@ -117,8 +117,8 @@
                                         <Sequence>
                                             <Action ID="GoToPose" nav_goal="-1.0577,0.20001" yaw="275"/>
                                             <Action ID="moveHead" head_goal="aruco7"/>
-                                            <Action ID="getItemPose" itemname="aruco7" pose="{aruco_pose}" type="drop"/>
-                                            <Action ID="NavFallback" fwd_dist="1.0" pose="{aruco_pose}" type="aruco"/>
+                                            <!-- <Action ID="getItemPose" itemname="aruco3" pose="{aruco_pose}" type="drop"/>
+                                            <Action ID="NavFallback" fwd_dist="0.85" pose="{aruco_pose}" type="aruco"/> -->
                                         </Sequence>
                                     </Fallback>
                                 </Fallback>
@@ -223,7 +223,16 @@
                         <SetBlackboard output_key="next_action" value="Wait"/>
                     </Sequence>
                 </Fallback>
-                <AlwaysSuccess/>
+                <Sequence>
+                    <Fallback>
+                        <Condition ID="checkAtGoal" nav_goal="1.7978,1.0762"/>
+                        <Action ID="GoToPose" nav_goal="1.7978,1.0762" yaw="180"/>
+                        <AlwaysSuccess/>
+                    </Fallback>
+                    <RetryUntilSuccessful num_attempts="3">
+                        <Action ID="MoveArm_CuRobo" arm_goal="0,0,0,0,0,0,0" traj_type="7"/>
+                    </RetryUntilSuccessful>
+                </Sequence>
                 <AlwaysFailure/>
             </Switch3>
         </Sequence>

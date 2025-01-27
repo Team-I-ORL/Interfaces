@@ -69,6 +69,7 @@ src/orbiter_suck.cpp
 src/orbiter_getNextAction.cpp
 src/orbiter_signalFinish.cpp
 src/orbiter_checkAtGoal.cpp
+src/orbiter_checkSucked.cpp
 src/orbiter_nav_fallback.cpp
 )
 

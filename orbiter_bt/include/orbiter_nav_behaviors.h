@@ -31,11 +31,12 @@ public:
     static BT::PortsList providedPorts();
     BT::NodeStatus onStart() override;
     BT::NodeStatus onRunning() override;
-    void onHalted() override{};
+    void onHalted() override;
     // std::vector<double> getGoal();
 
     bool nav_done_flag;
     bool nav_success_flag;
+    bool nav_running_flag;
 
     // getting results
     void navigate_to_pose_callback(const GoalHandleNav::WrappedResult &result);

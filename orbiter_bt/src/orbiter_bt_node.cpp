@@ -1,7 +1,7 @@
 #include "orbiter_bt_node.h"
 
 // const std::string bt_xml_dir = ament_index_cpp::get_package_share_directory("orbiter_bt") + "/bt_xml" + "/fall_2.xml";
-const std::string bt_xml_dir = "/home/siddharth/fall_ws/src/Interfaces/orbiter_bt/bt_xml/fall_2.xml";
+const std::string bt_xml_dir = "/home/siddharth/fall_ws/src/Interfaces/orbiter_bt/bt_xml/fall_3.xml";
 OrbiterBTNode::OrbiterBTNode(const std::string &name) : Node(name)
 {
     RCLCPP_INFO(get_logger(), "OrbiterBTNode has been created.");
@@ -77,6 +77,13 @@ void OrbiterBTNode::creatBT()
         return std::make_unique<CheckAtGoal>(name, config, shared_from_this());
     };
     factory.registerBuilder<CheckAtGoal>("checkAtGoal", builder);
+
+    RCLCPP_INFO(get_logger(), "checkSucked creating");
+    builder = 
+        [=](const std::string &name, const BT::NodeConfiguration &config) {
+        return std::make_unique<CheckSucked>(name, config, shared_from_this());
+    };
+    factory.registerBuilder<CheckSucked>("checkSucked", builder);
 
     // RCLCPP_INFO(get_logger(), "getDropPose creating");
     // builder = 
@@ -181,11 +188,11 @@ void OrbiterBTNode::updateBT()
     // tick the behavior tree when asked
     BT::NodeStatus tree_status = tree_.tickRoot();
     // BT::NodeStatus tree_status = tree_.tickOnce(); // V4
-    if (tree_status == BT::NodeStatus::SUCCESS)
-    {   
-        RCLCPP_INFO(get_logger(), "Behavior tree executed successfully");
-    }
-    else if (tree_status == BT::NodeStatus::RUNNING)
+    // if (tree_status == BT::NodeStatus::SUCCESS)
+    // {   
+    //     RCLCPP_INFO(get_logger(), "Behavior tree executed successfully");
+    // }
+    if (tree_status == BT::NodeStatus::RUNNING)
     {
         // RCLCPP_INFO(get_logger(), "Behavior tree is running");
     }
@@ -199,7 +206,7 @@ void OrbiterBTNode::updateBT()
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::executors::MultiThreadedExecutor executor;
+    // rclcpp::executors::MultiThreadedExecutor executor;
 
     auto node = std::make_shared<OrbiterBTNode>("orbiter_bt_node");
 
@@ -207,13 +214,31 @@ int main(int argc, char *argv[])
     // BT::PublisherZMQ publisher_zmq(node->tree_);
 
     node->setup();
-    BT::PublisherZMQ publisher_zmq(node->tree_);
+    // BT::PublisherZMQ publisher_zmq(node->tree_);
+
+    try{
+        BT::PublisherZMQ publisher_zmq(node->tree_);
+    }
+    catch (const std::runtime_error& e) {
+        RCLCPP_WARN(node->get_logger(), "Failed to connect to default port!");
+        for (unsigned port = 1666; port < 1767; port+=2) {
+            try {
+                BT::PublisherZMQ publisher_zmq(node->tree_, 25, port, port + 1);
+                RCLCPP_WARN(node->get_logger(), "Connected to ZMQ publisher on port %d", port);
+                break;
+            } catch (const std::runtime_error& e) {
+                continue;
+            }
+        }
+    }
+
+    RCLCPP_INFO(node->get_logger(), "OrbiterBTNode is running");
     rclcpp::spin(node);
     rclcpp::shutdown();
 
-    executor.add_node(node);
-    executor.spin();
-    rclcpp::shutdown();
+    // executor.add_node(node);
+    // executor.spin();
+    // rclcpp::shutdown();
     std::cout << "OrbiterBTNode shutted down" << std::endl;
     return 0;
 }

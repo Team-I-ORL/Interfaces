@@ -46,11 +46,12 @@ void GetNextAction::result_callback(rclcpp::Client<orbiter_bt::srv::NextAction>:
 {
     auto response = result.get();
     finished = true;
-    RCLCPP_INFO(node_->get_logger(), "Next Action: %s", response->next_action.c_str());
     setOutput("next_action", response->next_action);
     setOutput("itemname", response->item);
-    RCLCPP_INFO(node_->get_logger(), "Item: %s", response->item.c_str());
     if (response->next_action == "Restocking"){
+        RCLCPP_INFO(node_->get_logger(), "Next Action: %s", response->next_action.c_str());
+        RCLCPP_INFO(node_->get_logger(), "Item: %s", response->item.c_str());
+
         if (item_to_aruco_id_restock.find(response->item) == item_to_aruco_id_restock.end()){
             RCLCPP_ERROR(node_->get_logger(), "Item not found in restock map");
             success = false;
@@ -61,6 +62,9 @@ void GetNextAction::result_callback(rclcpp::Client<orbiter_bt::srv::NextAction>:
         success = true;
     }
     else if (response->next_action == "Retrieval"){
+        RCLCPP_INFO(node_->get_logger(), "Next Action: %s", response->next_action.c_str());
+        RCLCPP_INFO(node_->get_logger(), "Item: %s", response->item.c_str());
+
         if (item_to_aruco_id_retrieve.find(response->item) == item_to_aruco_id_retrieve.end()){
             RCLCPP_ERROR(node_->get_logger(), "Item not found in retrieve map");
             success = false;

@@ -21,9 +21,10 @@ import sys
 
 
 class TaskManagerNode(Node):
-    def __init__(self, task_queue, lock):
+    def __init__(self, task_queue, cur_task, lock):
         super().__init__('task_manager_node')
         self.task_queue = task_queue
+        self.curtask = cur_task
         self.lock = lock
 
         # Service server for /get_next_action
@@ -38,10 +39,13 @@ class TaskManagerNode(Node):
         with self.lock:
             if self.task_queue:
                 task = self.task_queue.popleft()
+                self.curtask.clear()
+                self.curtask.update(task)
                 response.next_action = task['type']
                 response.item = task['item']
                 self.get_logger().info(f"Next action: {task['type']} - {task['item']}")
             else:
+                self.curtask.clear()
                 response.next_action = 'Wait'
                 response.item = 'None'
                 self.get_logger().info("No task in queue, waiting...")
@@ -61,6 +65,7 @@ class GUIApp:
         self.root.title("ORB Robotics Task Manager")
 
         self.task_queue = deque()
+        self.cur_task = {}
         self.lock = threading.Lock()
 
         # Create main frames
@@ -99,6 +104,8 @@ class GUIApp:
 
         # Start the external process
         self.start_external_process()
+
+        self.create_current_task_display(parent=self.left_frame)
 
         # Update GUI periodically
         self.update_gui()
@@ -176,6 +183,16 @@ class GUIApp:
         for idx, obj in enumerate(objects):
             tk.Button(frame, text=names[idx], command=lambda o=obj: self.add_restocking_tasks(o),
                       bg='#4B89DC', fg='white', width=12).grid(row=2, column=idx, padx=5, pady=5)
+            
+    def create_current_task_display(self, parent=None):
+        if parent is None:
+            parent = self.root
+        frame = tk.Frame(parent)
+        frame.pack(pady=10)
+
+        tk.Label(frame, text="Current Task", font=('Helvetica', 14, 'bold')).pack()
+        self.current_task_label = tk.Label(frame, text="None", font=('Helvetica', 12))
+        self.current_task_label.pack()
 
     def create_retrieval_section(self, parent=None):
         if parent is None:
@@ -199,7 +216,7 @@ class GUIApp:
 
         tk.Label(frame, text="Task Queue").pack()
 
-        self.queue_listbox = tk.Listbox(frame, width=40)
+        self.queue_listbox = tk.Listbox(frame, width=40, height=10)
         self.queue_listbox.pack()
 
         # Add Clear Queue button
@@ -219,7 +236,7 @@ class GUIApp:
         tk.Label(frame, text="BT LOG", font=('Helvetica', 12, 'bold')).pack()
 
         # Reduce height to make it more proportional
-        self.output_text = scrolledtext.ScrolledText(frame, width=60, height=15)
+        self.output_text = scrolledtext.ScrolledText(frame, width=60, height=10)
         self.output_text.pack(fill=tk.BOTH, expand=True)
 
         self.toggle_scroll_button = tk.Button(frame, text="Disable Scrolling", 
@@ -249,12 +266,18 @@ class GUIApp:
             self.queue_listbox.delete(0, tk.END)
             for task in self.task_queue:
                 self.queue_listbox.insert(tk.END, f"{task['type']} - {item_to_name[task['item']]}")
+
+            if self.cur_task:
+                task_str = f"{self.cur_task['type']} - {item_to_name[self.cur_task['item']]}"
+            else:
+                task_str = "None"
+            self.current_task_label.config(text=f"Current Task: {task_str}")
         self.root.after(500, self.update_gui)
 
     def start_ros2_thread(self):
         def ros2_thread():
             rclpy.init()
-            self.node = TaskManagerNode(self.task_queue, self.lock)
+            self.node = TaskManagerNode(self.task_queue, self.cur_task, self.lock)
             rclpy.spin(self.node)
             self.node.destroy_node()
             rclpy.shutdown()

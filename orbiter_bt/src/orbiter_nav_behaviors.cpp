@@ -11,6 +11,7 @@ GoToPose::GoToPose(const std::string &name,
     action_client_ = rclcpp_action::create_client<NavigateToPose>(node_, "/navigate_to_pose");
     moved_pub = node_->create_publisher<std_msgs::msg::Bool>("moved", 5);
     nav_done_flag = false;
+    nav_running_flag = false;
 }
 
 BT::PortsList GoToPose::providedPorts()
@@ -24,6 +25,10 @@ BT::PortsList GoToPose::providedPorts()
 
 BT::NodeStatus GoToPose::onStart()
 {   
+    if (nav_running_flag){
+        RCLCPP_INFO(node_->get_logger(), "Navigation is already running");
+        return BT::NodeStatus::RUNNING;
+    }
     // Get location names from input port
     BT::Optional<std::string> loc = getInput<std::string>("nav_goal");
     BT::Optional<std::string> yaw = getInput<std::string>("yaw");
@@ -72,6 +77,7 @@ BT::NodeStatus GoToPose::onStart()
     action_client_->async_send_goal(goal_msg, send_goal_options);
     nav_done_flag = false;
     RCLCPP_INFO(node_->get_logger(), "Goal sent");
+    nav_running_flag = true;
     return BT::NodeStatus::RUNNING;
 }
 
@@ -80,6 +86,7 @@ BT::NodeStatus GoToPose::onRunning()
     if (nav_done_flag)
     {   
         nav_done_flag = false;
+        nav_running_flag = false;
         if (nav_success_flag)
         {
             return BT::NodeStatus::SUCCESS;
@@ -94,6 +101,14 @@ BT::NodeStatus GoToPose::onRunning()
     {
         return BT::NodeStatus::RUNNING;
     }
+}
+
+void GoToPose::onHalted()
+{
+    RCLCPP_INFO(node_->get_logger(), "GoToPose halted!!!!!!!!!");
+    nav_running_flag = false;
+    action_client_->async_cancel_all_goals();
+    sleep(0.5);
 }
 
 void GoToPose::navigate_to_pose_callback(const GoalHandleNav::WrappedResult &result)

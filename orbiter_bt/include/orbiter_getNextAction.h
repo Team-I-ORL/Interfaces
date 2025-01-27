@@ -24,9 +24,9 @@ class GetNextAction : public BT::StatefulActionNode // using async action
         };
 
         const std::unordered_map<std::string, std::string> item_to_aruco_id_retrieve = {
-            {"obj1", "aruco5"},
-            {"obj2", "aruco4"},
-            {"obj3", "aruco3"}
+            {"obj1", "aruco3"},
+            {"obj2", "aruco3"},
+            {"obj4", "aruco3"}
             
         };
 

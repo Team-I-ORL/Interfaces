@@ -53,7 +53,7 @@ BT::NodeStatus MoveHead::onRunning()
 {   
     RCLCPP_INFO(node_->get_logger(), "Move Head Running!");
     auto time_now = node_->now();
-    if ((time_now - start_time).seconds() > 100)
+    if ((time_now - start_time).seconds() > 1000)
     {
         RCLCPP_INFO(node_->get_logger(), "Move Head Timeout!");
         return BT::NodeStatus::FAILURE;
